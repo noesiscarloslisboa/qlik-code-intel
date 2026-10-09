@@ -156,6 +156,8 @@ when available. Run `scripts/check-skill.py --binary PATH_TO_EXTRACTED_BINARY
 --skill PATH_TO_EXTRACTED_SKILL_FOLDER` against the public fixtures. These checks
 validate command examples and source facts; they do not evaluate automatic skill
 selection or model behavior in assistant products.
+Executed v0.1.1 checks are recorded in the
+[skill validation assessment](validation/assistant-skill-assessment.md).
 
 ## Publication checklist
 
@@ -167,8 +169,8 @@ When publication is explicitly requested:
    GitHub Actions checks on that commit.
 3. Confirm both minimum and current Go CI results, and update the readiness
    assessment with any newly executed targets.
-4. Complete a native dry run against the exact candidate commit. Set the changelog
-   release date, tag the verified commit, and publish release notes containing
+4. Include the release date in the reviewed candidate changelog, complete a native
+   dry run, then tag that exact verified commit. Publish release notes containing
    supported syntax, CGO/build requirements, validation evidence, and known limits.
 5. Publish binaries only for targets that were built and tested, plus the companion
    skill when present, with SHA-256 checksums and applicable license notices.

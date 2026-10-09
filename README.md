@@ -187,8 +187,8 @@ Download `qlik-code-intelligence-skill_v0.1.1.zip` from the
 [v0.1.1 release](https://github.com/noesiscarloslisboa/qlik-code-intel/releases/tag/v0.1.1)
 and verify its entry in `SHA256SUMS`. Extract its `qlik-code-intelligence` folder
 into your assistant's configured skills directory. For Codex, the default is
-`~/.codex/skills/`; restart Codex after installing. Alternatively, ask Codex's
-skill-installer to install from this versioned repository URL:
+`~/.codex/skills/`; the skill is available on the next turn. Alternatively, ask
+Codex's skill-installer to install from this versioned repository URL:
 
 ```text
 Install the skill from https://github.com/noesiscarloslisboa/qlik-code-intel/tree/v0.1.1/skills/qlik-code-intelligence
@@ -203,8 +203,9 @@ Then try prompts such as:
 The skill uses the [Agent Skills format](https://agentskills.io/specification)
 and includes Codex UI metadata. Its command examples are tested against extracted
 release binaries on macOS and Windows. Automatic selection and model behavior
-have not been evaluated across assistant products. Installation does not bundle
-the CLI or execute Qlik scripts.
+have not been evaluated across assistant products. See the
+[skill validation assessment](docs/validation/assistant-skill-assessment.md).
+Installation does not bundle the CLI or execute Qlik scripts.
 
 ### Query integration
 

@@ -29,10 +29,10 @@ Implementation runs inline in this session; the user already approved this scope
   installation, example prompts, and v0.1.1 release notes in README and docs.
 - [x] Run skill-creator validation, Python tests, documented examples, public
   benchmark, `make test integration vet build`, and local archive verification.
-- [ ] Push the verified source; confirm ordinary CI. Run a pre-tag native dry run
+- [x] Push the verified source; confirm ordinary CI. Run a pre-tag native dry run
   with `gh workflow run release.yml --ref main -f tag=v0.1.1 -f source-ref=main
   -f publish=false`. Tag that exact successful candidate commit v0.1.1 and push
   the tag to trigger publication after all checks pass. Do not move v0.1.0.
-- [ ] Download public assets, verify all four archive checksums and metadata,
+- [x] Download public assets, verify all four archive checksums and metadata,
   validate the extracted skill, run its examples against the downloaded native
   executable, and record results and testing limits.
