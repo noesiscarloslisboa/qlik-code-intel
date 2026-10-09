@@ -91,5 +91,7 @@ Go tests/httptest. No new module dependencies.
 
 Implemented and locally verified on 2026-10-09. See
 [the validation assessment](../../validation/cloud-script-assessment.md) for
-executed checks and limits. Live acceptance remains pending a locally supplied
-credential; no private tenant source has been fetched.
+executed checks and limits. Live acceptance was attempted with a supplied
+credential on 2026-10-09: app metadata succeeded, but script history returned
+HTTP 403. Successful script retrieval remains pending access or another selected
+app; no private tenant source has been fetched.

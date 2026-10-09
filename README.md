@@ -167,6 +167,13 @@ Requests have a 30-second timeout and a 32 MiB response limit. Normal TLS
 verification applies; redirects are rejected. Errors report HTTP status and
 access/rate-limit hints without printing response bodies or credentials.
 
+If metadata is readable but script history returns **403**, check script access
+for the account represented by the token. In a shared space, Qlik's `Owner` and
+`Can manage` roles alone do not grant access to edit other users' load scripts;
+the relevant role is **Can edit data in applications**. Alternatively, select
+an app that account owns. See [Qlik's shared-space permissions](https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Spaces/managing-shared-spaces.htm).
+The importer still issues only GET requests, even when the account can edit.
+
 ## Grammar support
 
 | Construct | Representation and behavior |

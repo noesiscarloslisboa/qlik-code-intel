@@ -51,15 +51,28 @@ survives a summary-output failure.
 
 ## Live acceptance status
 
-Pending: the user selected a tenant and app, but no local credential was available
-at validation time. No real Cloud script was downloaded. Successful executable
-pulls against that tenant and comparison with its saved script version remain
-unverified. Tenant details and any later source/audit output belong in ignored
-local storage, not this report.
+Attempted on 2026-10-09 with the user's locally supplied credential and a freshly
+built executable. App metadata was accessible (HTTP 200), but the saved-script
+history request returned HTTP 403. The CLI returned exit code 1 with a sanitized
+permission hint and created no snapshot. A separate metadata read confirmed app
+access; its reported privilege hints omitted `update` and `reload`. These hints
+are consistent with the script-history denial but do not establish the account's
+exact assigned space roles.
+
+Successful script acquisition, saved-version comparison, and retrieval against
+this live app remain pending script access or another explicitly selected app.
+No real Cloud script was downloaded. Detailed audit output and tenant metadata
+are stored under the ignored `.cache/qlik-cloud/` directory; this report contains
+only aggregate results.
+
+Qlik documents that shared-space `Owner` and `Can manage` roles do not grant
+editing access to other users' load scripts; `Can edit data in applications`
+provides that capability. Check access for the account represented by the token
+or select an app it owns. See [shared-space permissions](https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Spaces/managing-shared-spaces.htm).
 
 Fixture tests establish the documented request and local retrieval behavior;
 they do not prove live tenant permissions, every API response variation, complete
 Qlik syntax coverage, or script reload validity. Last reload time is separate
 metadata, and saved source excludes unsaved editor/session changes. The skill's
 Cloud provenance instructions have been reviewed, but autonomous assistant
-behavior against a live tenant has not been evaluated.
+behavior on downloaded live source has not been evaluated.
