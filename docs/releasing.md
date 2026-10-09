@@ -74,6 +74,11 @@ runtime linking. Native jobs run race tests, executable integration tests, vet,
 then build and test the extracted archive. Windows checks PE imports and runs
 smoke tests without compiler paths. Ubuntu also runs `make check` on Go 1.23.x.
 
+CI and native release jobs clear Go's build cache before testing. CGO does not
+track changes to the parser/scanner C sources included from outside the binding
+package; restoring an older cache can otherwise link an outdated parser even
+with uncached test results (`-count=1`).
+
 The original v0.1.0 integration harness used an extensionless temporary executable
 name, which Go cannot launch on Windows. Its Windows backfill uses a Go test
 overlay changing only that `_test.go` filename to end in `.exe`. The checkout,

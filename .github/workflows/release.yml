@@ -89,6 +89,10 @@ jobs:
           python-version: "3.12"
       - run: npm ci
         working-directory: source/tree-sitter-qlik
+      # CGO does not invalidate cached objects for C files outside the Go package.
+      - name: Rebuild the external CGO parser
+        run: go clean -cache
+        working-directory: source
       - run: make check
         working-directory: source
       - run: python -m unittest discover -s automation/scripts -p 'test_*.py'
@@ -209,6 +213,8 @@ jobs:
       - name: Test native source
         working-directory: source
         run: |
+          # -count=1 clears test results, not cached external C objects.
+          go clean -cache
           go test -race -count=1 ./...
           overlay=()
           if test -n "${TEST_OVERLAY:-}"; then overlay=(-overlay "$TEST_OVERLAY"); fi
