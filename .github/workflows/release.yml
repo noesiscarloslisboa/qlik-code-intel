@@ -1,0 +1,202 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to build (for example v0.1.0)
+        required: true
+        type: string
+      publish:
+        description: Upload binaries to the GitHub release after all checks pass
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.tag.outputs.version }}
+      commit: ${{ steps.tag.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve the exact tagged source
+        id: tag
+        env:
+          REQUESTED_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          if [[ ! "$REQUESTED_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Expected a version tag such as v0.1.0" >&2
+            exit 1
+          fi
+          commit=$(git rev-parse --verify "refs/tags/$REQUESTED_TAG^{commit}")
+          echo "version=$REQUESTED_TAG" >> "$GITHUB_OUTPUT"
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: automation
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.resolve.outputs.commit }}
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version: "1.23.x"
+          cache-dependency-path: source/go.sum
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: source/tree-sitter-qlik/package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: npm ci
+        working-directory: source/tree-sitter-qlik
+      - run: make check
+        working-directory: source
+      - run: python -m unittest discover -s automation/scripts -p 'test_*.py'
+
+  build:
+    needs: resolve
+    name: build (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            target: darwin_arm64
+            cc: clang
+          - os: macos-15-intel
+            target: darwin_amd64
+            cc: clang
+          - os: windows-2025
+            target: windows_amd64
+            cc: gcc
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      CGO_ENABLED: "1"
+      CC: ${{ matrix.cc }}
+    steps:
+      - name: Preserve fixture bytes on Windows
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v7
+        with:
+          path: automation
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.resolve.outputs.commit }}
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache-dependency-path: source/go.sum
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc
+      - name: Configure native Windows CGO
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          "C:\msys64\ucrt64\bin" >> $env:GITHUB_PATH
+          "CGO_LDFLAGS=-static" >> $env:GITHUB_ENV
+      - name: Test native source
+        working-directory: source
+        run: |
+          go test -race -count=1 ./...
+          go test -tags=integration -count=1 ./...
+          go vet ./...
+      - name: Package and test the extracted executable
+        env:
+          VERSION: ${{ needs.resolve.outputs.version }}
+        run: python automation/scripts/release.py package --root source --output dist --version "$VERSION"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [resolve, verify, build]
+    if: github.event_name == 'push' || inputs.publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+      - name: Verify and combine all archive checksums
+        env:
+          VERSION: ${{ needs.resolve.outputs.version }}
+        run: python scripts/release.py checksums --output dist --version "$VERSION"
+      - name: Publish verified assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.resolve.outputs.version }}
+          SOURCE_COMMIT: ${{ needs.resolve.outputs.commit }}
+        run: |
+          remote=$(git ls-remote origin "refs/tags/$VERSION" "refs/tags/$VERSION^{}")
+          commit=$(printf '%s\n' "$remote" | tail -1 | cut -f1)
+          test "$commit" = "$SOURCE_COMMIT"
+          if gh release view "$VERSION" --json assets > existing-release.json; then
+            if test "$(gh release view "$VERSION" --json assets --jq '.assets | length')" != 0; then
+              mkdir existing
+              gh release download "$VERSION" --dir existing
+              for file in dist/*; do cmp "$file" "existing/$(basename "$file")"; done
+              echo "Identical assets already published"
+              exit 0
+            fi
+          else
+            flags=()
+            if [[ "$VERSION" == *-* ]]; then flags+=(--prerelease); fi
+            gh release create "$VERSION" --draft --verify-tag --title "$VERSION" --generate-notes "${flags[@]}"
+          fi
+          gh release upload "$VERSION" dist/*
+          gh release edit "$VERSION" --draft=false

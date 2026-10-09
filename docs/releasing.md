@@ -1,4 +1,4 @@
-# Source release process
+# Release process
 
 The first release version is `v0.1.0`. The GitHub repository/module path is
 `github.com/noesiscarloslisboa/qlik-code-intel`; the project title remains
@@ -55,9 +55,69 @@ on each supported target; setting `GOOS`/`GOARCH` alone does not establish runti
 support. The [readiness assessment](validation/release-readiness-assessment.md)
 lists platforms and toolchains actually executed and links the initial passing
 Ubuntu CI run. A configured job alone is not evidence of a completed run. This
-source release has no binary distribution automation or Windows validation claim.
+v0.1.0 publication contained source only; native distribution is described below.
 The npm grammar package remains private;
 source queries and the Go binding are included in the repository.
+
+## GitHub Actions binary releases
+
+The `release` workflow builds on native runners: `macos-15` for Apple Silicon,
+`macos-15-intel` for Intel Macs, and `windows-2025` for Windows x64. These are
+the tested operating-system versions; older OS versions are not established by
+these jobs. macOS uses Clang. Windows uses MSYS2 UCRT64 GCC and static compiler
+runtime linking. Native jobs run race tests, executable integration tests, vet,
+then build and test the extracted archive. Windows checks PE imports and runs
+smoke tests without compiler paths. Ubuntu also runs `make check` on Go 1.23.x.
+
+Release packaging uses Python 3.12+ and its standard library, with no new CLI
+runtime dependencies. Each archive contains only the executable, `LICENSE`,
+`THIRD_PARTY_NOTICES.md`, `licenses/`, and `build-info.json` recording the source
+commit, target, Go version, and C compiler. Every packaged binary must report the
+requested version, pass the strict five-file baseline, support all retrieval
+commands, and pass all forty selected public retrieval checks. The workflow
+publishes three archives and `SHA256SUMS` only after every required job succeeds.
+These are unsigned binaries; code signing and notarization are not configured.
+
+For a new release, commit the reviewed changelog and source, let ordinary CI pass,
+then push an annotated version tag on that commit:
+
+```sh
+git tag -a v0.1.1 -m 'Release v0.1.1'
+git push origin v0.1.1
+```
+
+Pushing `v*` tags triggers a build and publication. All builds use the exact
+resolved tag commit. A new release is created as a draft, receives the complete
+asset set, then becomes public.
+
+To test or backfill an existing tag, run the workflow from the current main
+branch, which supplies packaging tooling separately from the tagged source:
+
+```sh
+# Build and test only; inspect the run's artifacts before publishing.
+gh workflow run release.yml --ref main -f tag=v0.1.0 -f publish=false
+
+# Build, test, and attach binaries to the existing source release.
+gh workflow run release.yml --ref main -f tag=v0.1.0 -f publish=true
+```
+
+Manual dispatch defaults to no publication. Backfills preserve the tag and
+existing release notes. The publish job checks that the tag still identifies
+the tested commit, verifies all checksums, and has the workflow's only write
+permission. It accepts already-published byte-identical assets; conflicting or
+partial existing asset sets fail without replacement. Investigate a failed
+upload before deliberately removing incomplete assets and retrying. Builds with
+different Go/C toolchains are not promised to produce identical bytes.
+
+To verify downloads, compare the desired archive's hash with its line in
+`SHA256SUMS`:
+
+```sh
+# macOS
+shasum -a 256 qlik-repomap_v0.1.0_darwin_arm64.tar.gz
+```
+
+In PowerShell use `Get-FileHash .\qlik-repomap_v0.1.0_windows_amd64.zip -Algorithm SHA256`.
 
 ## Publication checklist
 

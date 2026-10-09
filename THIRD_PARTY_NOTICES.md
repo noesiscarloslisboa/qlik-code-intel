@@ -35,3 +35,6 @@ which bundles its Tree-sitter C runtime and uses `github.com/mattn/go-pointer`
 v0.0.1 (MIT). Their original license files are included in their downloaded
 modules. `go.sum` records resolved module checksums; those dependency sources
 are not vendored in this repository.
+
+Binary release archives additionally include the Go toolchain's original license,
+both Go module licenses, and the bundled Unicode/ICU notice under `licenses/`.

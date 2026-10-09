@@ -9,6 +9,23 @@ The first milestone provides two components:
 
 MIT licensed. No Qlik installation, script execution, network access during use, database, MCP server, or GUI. Each command scans current files into memory; `scan --json` exports a snapshot.
 
+## Download
+
+Download `qlik-repomap` from [GitHub Releases](https://github.com/noesiscarloslisboa/qlik-code-intel/releases):
+
+| Platform | Archive suffix |
+| --- | --- |
+| macOS Apple Silicon | `darwin_arm64.tar.gz` |
+| macOS Intel | `darwin_amd64.tar.gz` |
+| Windows x64 | `windows_amd64.zip` |
+
+Extract the archive and run `./qlik-repomap version` on macOS or
+`.\qlik-repomap.exe version` in PowerShell. Add its directory to `PATH` to run it
+from elsewhere. The downloaded executables include the parser and need no Go,
+C compiler, or Qlik installation. Archives include licenses and build metadata;
+`SHA256SUMS` provides their checksums. Binaries are unsigned. See the
+[release process](docs/releasing.md) for build and validation details.
+
 ## Build and try it
 
 Requires **Go 1.23+**, a C compiler (GCC or Clang), and **CGO enabled**. On macOS install the Xcode command-line tools; on Linux install your distribution's C build tools. The generated parser is included, so Node.js and Tree-sitter CLI are unnecessary for ordinary builds.
