@@ -172,6 +172,9 @@ for the account represented by the token. In a shared space, Qlik's `Owner` and
 `Can manage` roles alone do not grant access to edit other users' load scripts;
 the relevant role is **Can edit data in applications**. Alternatively, select
 an app that account owns. See [Qlik's shared-space permissions](https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Spaces/managing-shared-spaces.htm).
+After changing access, Qlik advises closing all tabs for the affected app and
+waiting at least two minutes before reopening it. Verify that the token's account
+can open the Data load editor; a different browser account may have different access.
 The importer still issues only GET requests, even when the account can edit.
 
 ## Grammar support

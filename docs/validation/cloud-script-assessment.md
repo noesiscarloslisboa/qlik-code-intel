@@ -59,6 +59,14 @@ access; its reported privilege hints omitted `update` and `reload`. These hints
 are consistent with the script-history denial but do not establish the account's
 exact assigned space roles.
 
+A retry after the user reported updating script access also returned HTTP 403,
+with no snapshot created. A fresh metadata read reported the same privilege hints.
+An authenticated current-user lookup confirmed that the token's account was active
+and did not own the selected app. Whether that account can open the Data load
+editor remains to be confirmed; no specific role assignment is inferred from
+these observations. Qlik documents a session-permission refresh requirement:
+close all affected app tabs and wait at least two minutes before reopening.
+
 Successful script acquisition, saved-version comparison, and retrieval against
 this live app remain pending script access or another explicitly selected app.
 No real Cloud script was downloaded. Detailed audit output and tenant metadata
