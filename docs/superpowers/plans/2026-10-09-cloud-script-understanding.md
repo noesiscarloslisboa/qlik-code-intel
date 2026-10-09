@@ -91,7 +91,10 @@ Go tests/httptest. No new module dependencies.
 
 Implemented and locally verified on 2026-10-09. See
 [the validation assessment](../../validation/cloud-script-assessment.md) for
-executed checks and limits. Live acceptance was attempted with a supplied
-credential on 2026-10-09: app metadata succeeded, but script history returned
-HTTP 403. Successful script retrieval remains pending access or another selected
-app; no private tenant source has been fetched.
+executed checks and limits. Live acceptance on 2026-10-09 initially reached app
+metadata but received HTTP 403 for script history. A later retry against the same
+selected app downloaded a pinned saved script successfully. An independent read
+of that exact Cloud version matched the snapshot bytes, and all 24 selected
+private retrieval checks passed across 14 source-reviewed questions. Unsupported
+construct diagnostics remain visible. Private source, manifests, hashes, queries,
+and detailed audits remain ignored; the assessment publishes aggregate results.

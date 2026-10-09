@@ -1,8 +1,9 @@
 # Qlik Cloud script understanding
 
-Status: approved for implementation on 2026-10-09. The user selected understanding
+Status: implemented and live-checked on 2026-10-09. The user selected understanding
 and debugging app scripts as the first Cloud workflow and approved this scope.
-Live tenant acceptance must be recorded separately from local tests.
+The [validation assessment](../../validation/cloud-script-assessment.md) records
+live acceptance separately from local tests, including remaining limitations.
 
 ## Outcome
 
@@ -28,7 +29,7 @@ or automatically retrieve logs in this increment.
 
 ## User interface
 
-Proposed new command (not available in v0.1.1):
+Implemented command (not available in v0.1.1):
 
 ```sh
 mkdir -p .cache/qlik-cloud

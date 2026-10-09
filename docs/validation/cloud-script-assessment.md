@@ -62,25 +62,48 @@ exact assigned space roles.
 A retry after the user reported updating script access also returned HTTP 403,
 with no snapshot created. A fresh metadata read reported the same privilege hints.
 An authenticated current-user lookup confirmed that the token's account was active
-and did not own the selected app. Whether that account can open the Data load
-editor remains to be confirmed; no specific role assignment is inferred from
-these observations. Qlik documents a session-permission refresh requirement:
+and did not own the selected app. These observations did not establish a specific
+role assignment. Qlik documents a session-permission refresh requirement:
 close all affected app tabs and wait at least two minutes before reopening.
 
-Successful script acquisition, saved-version comparison, and retrieval against
-this live app remain pending script access or another explicitly selected app.
-No real Cloud script was downloaded. Detailed audit output and tenant metadata
-are stored under the ignored `.cache/qlik-cloud/` directory; this report contains
-only aggregate results.
+A later retry against the same selected app succeeded. The actual executable
+downloaded a pinned saved version containing 17,545 UTF-8 bytes and 608 lines into
+a new snapshot with exactly `script.qvs` and `manifest.json`. The source hash and
+length matched the manifest. An independent authenticated read of that exact
+script ID returned HTTP 200 and identical decoded source bytes. No permission
+changes or app writes were made by the tool; the specific access or session change
+that resolved the earlier denial was not established.
+
+The offline scan retained 141 symbol occurrences, including 12 table definitions,
+36 field definitions, and 43 variable definitions, plus 12 LOAD records and 21
+direct dependency edges. It reported 72 diagnostics: 66 `unsupported` and six
+`unsupported-control`. Strict scan therefore returned exit code 1 while preserving
+the supported facts in its JSON output. The diagnostics do not establish runtime
+invalidity, and the extracted facts do not imply complete script coverage.
+
+A private, source-reviewed, SHA-256-pinned oracle checked selected table, field,
+variable, and literal source matches; compact maps; original numbered context;
+and dependencies with explicit endpoint kinds and directions. All 24 checks
+passed across 14 questions, with map/context budgets of 256, 512, and 1,024 UTF-8
+bytes. The runner also checked deterministic results, source bounds, first
+answers/blocks, and budget feasibility. These selected cases are not exhaustive
+precision or recall measurements. A useful general map used 2,022 bytes within a
+2,048-byte budget.
+
+Source, manifests, detailed audit output, hashes, private queries, and tenant
+metadata remain under the ignored `.cache/qlik-cloud/` directory; this report
+contains only aggregate results.
 
 Qlik documents that shared-space `Owner` and `Can manage` roles do not grant
 editing access to other users' load scripts; `Can edit data in applications`
-provides that capability. Check access for the account represented by the token
-or select an app it owns. See [shared-space permissions](https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Spaces/managing-shared-spaces.htm).
+provides that capability. This distinction informed the access troubleshooting.
+See [shared-space permissions](https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Spaces/managing-shared-spaces.htm).
 
-Fixture tests establish the documented request and local retrieval behavior;
-they do not prove live tenant permissions, every API response variation, complete
-Qlik syntax coverage, or script reload validity. Last reload time is separate
-metadata, and saved source excludes unsaved editor/session changes. The skill's
-Cloud provenance instructions have been reviewed, but autonomous assistant
-behavior on downloaded live source has not been evaluated.
+Fixture tests establish the documented request and local retrieval behavior. The
+live check confirms acquisition and selected retrieval for one authorized app;
+it does not prove access across other tenants or role combinations, every API
+response variation, complete Qlik syntax coverage, or script reload validity.
+Last reload time is separate metadata, and saved source excludes unsaved
+editor/session changes. The skill's Cloud provenance instructions have been
+reviewed, but autonomous assistant behavior on downloaded live source has not
+been evaluated.
