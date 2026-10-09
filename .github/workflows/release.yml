@@ -124,6 +124,7 @@ jobs:
         with:
           python-version: "3.12"
       - uses: msys2/setup-msys2@v2
+        id: msys2
         if: runner.os == 'Windows'
         with:
           msystem: UCRT64
@@ -132,8 +133,13 @@ jobs:
       - name: Configure native Windows CGO
         if: runner.os == 'Windows'
         shell: pwsh
+        env:
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
-          "C:\msys64\ucrt64\bin" >> $env:GITHUB_PATH
+          $bin = Join-Path $env:MSYS2_LOCATION "ucrt64/bin"
+          if (!(Test-Path "$bin/gcc.exe")) { throw "UCRT64 GCC is missing" }
+          "$bin" >> $env:GITHUB_PATH
+          "CC=$bin/gcc.exe" >> $env:GITHUB_ENV
           "CGO_LDFLAGS=-static" >> $env:GITHUB_ENV
       - name: Adapt the original v0.1.0 Windows test harness
         if: runner.os == 'Windows' && needs.resolve.outputs.version == 'v0.1.0'
