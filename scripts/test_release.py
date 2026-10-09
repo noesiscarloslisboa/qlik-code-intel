@@ -5,7 +5,9 @@ import importlib.util
 from pathlib import Path
 import tarfile
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 import zipfile
 
 
@@ -15,6 +17,14 @@ spec.loader.exec_module(release)
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_windows_smoke_removes_compiler_paths(self):
+        original = {"SYSTEMROOT": "C:/Windows", "PATH": "C:/compiler/bin", "OTHER": "keep"}
+        with patch.object(release, "os", SimpleNamespace(name="nt", environ=original)):
+            env = release.smoke_environment()
+        self.assertEqual(env["PATH"], str(Path("C:/Windows") / "System32"))
+        self.assertEqual(env["OTHER"], "keep")
+        self.assertEqual(original["PATH"], "C:/compiler/bin")
+
     def test_invalid_version_and_target(self):
         for version, target in [("../main", "darwin_arm64"), ("v1.2.3\n", "windows_amd64"),
                                 ("v1.2.3", "linux_amd64")]:

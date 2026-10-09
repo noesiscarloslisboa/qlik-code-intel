@@ -55,11 +55,16 @@ def write_archive(path, files):
                     archive.addfile(info, io.BytesIO(data))
 
 
-def smoke(binary, root, version):
+def smoke_environment():
     env = os.environ.copy()
     if os.name == "nt":
         # A downloaded binary must work without the build toolchain on PATH.
-        env["PATH"] = str(Path(env["SystemRoot"]) / "System32")
+        env["PATH"] = str(Path(env["SYSTEMROOT"]) / "System32")
+    return env
+
+
+def smoke(binary, root, version):
+    env = smoke_environment()
     require(run([binary, "version"], env=env).strip() == version, "wrong embedded version")
     samples = root / "testdata/repository"
     index = json.loads(run([binary, "scan", "--root", samples, "--strict", "--json"], env=env))

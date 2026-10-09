@@ -38,3 +38,5 @@ are not vendored in this repository.
 
 Binary release archives additionally include the Go toolchain's original license,
 both Go module licenses, and the bundled Unicode/ICU notice under `licenses/`.
+Windows archives also retain GCC's license and Runtime Library Exception, plus
+the MinGW CRT and winpthreads notices supplied with the selected UCRT64 toolchain.

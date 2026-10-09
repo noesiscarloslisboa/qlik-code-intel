@@ -144,3 +144,22 @@ have selected source/retrieval checks, but completeness still requires compariso
 with authoritative `.qvs` exports or project `LoadScript.txt` files. Independent
 fixtures and editor examples do not establish runtime validity; this tool never
 reloads apps.
+
+## Binary releases
+
+`.github/workflows/release.yml` builds and tests macOS arm64/amd64 and Windows
+amd64 natively before publishing archives. Push version tags for new releases;
+manual dispatch can test or backfill an existing tag. Keep the tagged production
+source intact and never move a published tag to add automation. The v0.1.0
+Windows backfill uses a test-only Go overlay for its missing `.exe` suffix.
+
+Packaging uses `scripts/release.py` and Python 3.12+ stdlib. Archives use an
+explicit binary/license/metadata allowlist; never package repository trees,
+module caches, fixtures, or private samples. Windows must use the MSYS2 action's
+reported installation path, check DLL imports, retain the compiler runtime
+notices, and test the executable without compiler paths.
+
+For release automation changes, run `python3 -m unittest discover -s scripts -p
+'test_*.py'`, lint the workflows with actionlint when available, and run a native
+workflow dry run before publication. Verify public archive checksums afterward.
+See `docs/releasing.md` for commands and the recorded validation evidence.
