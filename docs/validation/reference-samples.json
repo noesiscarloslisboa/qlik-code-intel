@@ -1,0 +1,57 @@
+{
+  "repository": "https://github.com/muehan/vs-qlik-languageserver",
+  "revision": "681d077f85cf277dc578f4aa4ef34ae0048d6ff6",
+  "license": "GPL-3.0 (external samples; not included)",
+  "files": [
+    {
+      "path": "validation/asAlingment.qvs",
+      "blob_sha": "4274dd97c274b1e5bad2140fc632ebfe789921d8",
+      "size_bytes": 2189
+    },
+    {
+      "path": "validation/comment.qvs",
+      "blob_sha": "70f94abc0c6afd0295ec6bf4d905c4536129c2ae",
+      "size_bytes": 840
+    },
+    {
+      "path": "validation/function.qvs",
+      "blob_sha": "98a17208bf7414f30b9b655d777090b5d8b76b47",
+      "size_bytes": 258
+    },
+    {
+      "path": "validation/keywords.qvs",
+      "blob_sha": "232fdcc82d0a1d30f11b4cd21995ca91fa8fe675",
+      "size_bytes": 426
+    },
+    {
+      "path": "validation/linter.qvs",
+      "blob_sha": "1ab29589dd34adc7af40554000ef4bbf02b5fda8",
+      "size_bytes": 2437
+    },
+    {
+      "path": "validation/linter_as_withtab.qvs",
+      "blob_sha": "03fcddc3f74508afb1531e79564d78d614a28503",
+      "size_bytes": 699
+    },
+    {
+      "path": "validation/small.qvs",
+      "blob_sha": "8fc97ea7a3827de3946a015b89a3009b9521cf69",
+      "size_bytes": 981
+    },
+    {
+      "path": "validation/strings.qvs",
+      "blob_sha": "e1c7a0fd39c20cb86159aa52de9b526bb9b7224d",
+      "size_bytes": 141
+    },
+    {
+      "path": "validation/test.qvs",
+      "blob_sha": "937fba128242fc855177231096f5dd6874e4e643",
+      "size_bytes": 3100
+    },
+    {
+      "path": "validation/trace.qvs",
+      "blob_sha": "87d8b891f4964103ae96f3218bc4e4096afb11f3",
+      "size_bytes": 836
+    }
+  ]
+}

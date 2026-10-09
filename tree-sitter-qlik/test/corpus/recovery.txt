@@ -1,0 +1,86 @@
+==================
+Balanced stray literals preserve following syntax
+==================
+"orphan heading"
+'literal containing LOAD Imaginary and $(vGhost)'
+$(Must_Include=config.qvs);
+Recovered:
+LOAD RecordID, If(Enabled = 1, Amount, 0) AS Accepted
+FROM [items.qvd] (qvd);
+---
+
+(source_file
+  (unsupported_literal_statement
+    (quoted_name))
+  (unsupported_literal_statement
+    (string
+      (variable_reference
+        (variable_name
+          (identifier)))))
+  (include_statement
+    (include_mode)
+    (include_path))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier)))
+      (load_field
+        (function_call
+          (identifier)
+          (binary_expression
+            (field_reference
+              (identifier))
+            (number))
+          (field_reference
+            (identifier))
+          (number))
+        (field_name
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec))))
+
+==================
+Unary NOT remains an operator in LOAD and LET
+==================
+Stock: LOAD NOT IsNull(UnitCost) AS HasCost FROM [stock.qvd] (qvd) WHERE not IsNull(SKU);
+LET vReady = Not IsNull(vInput);
+---
+
+(source_file
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (unary_expression
+          (function_call
+            (identifier)
+            (field_reference
+              (identifier))))
+        (field_name
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec))
+    (where_clause
+      (unary_expression
+        (function_call
+          (identifier)
+          (field_reference
+            (identifier))))))
+  (let_statement
+    (variable_name
+      (identifier))
+    (unary_expression
+      (function_call
+        (identifier)
+        (bare_variable_reference
+          (identifier))))))

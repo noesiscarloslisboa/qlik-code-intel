@@ -1,0 +1,14 @@
+LET vScratch =;
+LET vPathSep = '/';
+Tree:
+NoConcatenate
+Hierarchy(ID, Parent, Caption, ParentCaption, Caption, [Branch Path], $(vPathSep), Depth)
+LOAD ID, Parent, Caption FROM [nodes.qvd] (qvd);
+Totals:
+LOAD Customer & Num(RowNo, '000') AS Key, Sum(Amount) AS Total
+FROM [facts.qvd] (qvd)
+GROUP BY Customer & Num(RowNo, '000');
+Flags:
+LOAD If(Active, If(Amount > 0, Amount,),) AS Selected AUTOGENERATE 1;
+Assets:
+BUNDLE INFO LOAD AssetID, FileName FROM [assets.csv] (txt);

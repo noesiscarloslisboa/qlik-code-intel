@@ -1,0 +1,8 @@
+// Output fields belong to their own LOAD stages.
+Transactions:
+LOAD ID, Net AS Revenue;
+
+LOAD ID, Num#(RawAmount, '#,##0.00') AS Net;
+LOAD ID, RawAmount FROM [lib://Warehouse/transactions.qvd] (qvd);
+
+STORE Transactions INTO [lib://Exports/transactions.qvd] (qvd);

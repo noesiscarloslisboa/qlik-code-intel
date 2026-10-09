@@ -1,0 +1,41 @@
+Events:
+LOAD
+    EventID,
+    RawAmount AS NetAmount,
+    Metric01,
+    Metric02,
+    Metric03,
+    Metric04,
+    Metric05,
+    Metric06,
+    Metric07,
+    Metric08,
+    Metric09,
+    Metric10,
+    Metric11,
+    Metric12,
+    Metric13,
+    Metric14,
+    Metric15,
+    Metric16,
+    Metric17,
+    Metric18,
+    Metric19,
+    Metric20,
+    FinalValue AS LateValue
+FROM [data\events.qvd] (qvd);
+Symbolic: LOAD EventID FROM [$(vRoot)events.qvd] (qvd);
+Snapshot: LOAD EventID FROM snapshot.qvd (qvd);
+STORE Snapshot INTO [lib://Exports/snapshot.qvd] (qvd);
+STORE Events INTO [$(vOut)events.qvd] (qvd);
+Summary:
+LOAD EventID, Sum(NetAmount) AS Total
+RESIDENT Events GROUP BY EventID;
+Tree:
+NoConcatenate
+Hierarchy(ID, Parent, Caption, ParentCaption, Caption, [Branch Path], '/', Depth)
+LOAD ID, Parent, Caption FROM [nodes.qvd] (qvd);
+Icons: BUNDLE LOAD * INLINE [ID
+logo
+];
+Backup: LOAD ID FROM [$(vRoot)events.qvd.backup.qvd] (qvd);

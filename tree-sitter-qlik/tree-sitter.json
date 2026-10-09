@@ -1,0 +1,18 @@
+{
+  "grammars": [{
+    "name": "qlik",
+    "camelcase": "Qlik",
+    "scope": "source.qlik",
+    "path": ".",
+    "file-types": ["qvs"],
+    "highlights": "queries/highlights.scm",
+    "tags": "queries/tags.scm"
+  }],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Qlik Sense load script grammar",
+    "authors": [{"name": "qlik-code-intelligence contributors"}]
+  },
+  "bindings": {"c": false, "go": true, "node": false, "python": false, "rust": false, "swift": false}
+}

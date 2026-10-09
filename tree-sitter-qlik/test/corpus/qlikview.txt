@@ -1,0 +1,175 @@
+==================
+Composite names and nested variable expansions remain symbolic
+==================
+LET vMeasure_$(vRun) = 42;
+SET vLabel_$(vRun)_tail = '$(vMeasure_$(vRun))';
+Batch_$(vRun): LOAD Raw_$(vRun) AS Output_$(vRun)_tail FROM [C:\Data\input.qvd] (qvd);
+Copy: LOAD * RESIDENT Batch_$(vRun);
+Dollar$: LOAD Amount$ AS Output$ AUTOGENERATE 1;
+---
+
+(source_file
+  (let_statement
+    (variable_name
+      (expanded_name
+        (name_fragment)
+        (variable_reference
+          (variable_name
+            (identifier)))))
+    (number))
+  (set_statement
+    (variable_name
+      (expanded_name
+        (name_fragment)
+        (variable_reference
+          (variable_name
+            (identifier)))))
+    (set_value
+      (string
+        (variable_reference
+          (variable_name
+            (expanded_name
+              (name_fragment)
+              (variable_reference
+                (variable_name
+                  (identifier)))))))))
+  (load_statement
+    (table_label
+      (table_name
+        (expanded_name
+          (name_fragment)
+          (variable_reference
+            (variable_name
+              (identifier))))))
+    (field_list
+      (load_field
+        (field_reference
+          (expanded_name
+            (name_fragment)
+            (variable_reference
+              (variable_name
+                (identifier)))))
+        (field_name
+          (expanded_name
+            (name_fragment)
+            (variable_reference
+              (variable_name
+                (identifier)))))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (wildcard))
+    (resident_clause
+      (table_name
+        (expanded_name
+          (name_fragment)
+          (variable_reference
+            (variable_name
+              (identifier)))))))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))
+        (field_name
+          (identifier))))
+    (autogenerate_clause
+      (number))))
+
+==================
+Windows paths and literal format dollars
+==================
+Drive: LOAD ID FROM C:\Data\sales.qvd (qvd);
+Network: LOAD ID FROM [\\server\share\sales.qvd] (qvd);
+Relative: LOAD ID FROM ..\archive\*.qvd (qvd);
+Sheet: LOAD ID FROM excel\items.xls (biff, embedded labels, table is Sheet1$);
+Dynamic: LOAD ID FROM $(vRoot)\items.xls (biff, table is $(vSheet)$);
+STORE Drive INTO [D:\Exports\sales.qvd] (qvd);
+$(Include=..\config\setup.qvs);
+---
+
+(source_file
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bare_path))
+      (format_spec)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bare_path))
+      (format_spec)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bare_path))
+      (format_spec)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bare_path
+          (variable_reference
+            (variable_name
+              (identifier)))))
+      (format_spec
+        (variable_reference
+          (variable_name
+            (identifier))))))
+  (store_statement
+    (table_name
+      (identifier))
+    (data_source
+      (bracket_name))
+    (format_spec))
+  (include_statement
+    (include_mode)
+    (include_path)))

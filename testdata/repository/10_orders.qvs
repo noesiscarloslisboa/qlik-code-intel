@@ -1,0 +1,17 @@
+Orders:
+LOAD
+    OrderID,
+    CustomerID,
+    Amount AS GrossAmount,
+    Date(OrderDate) AS OrderDate,
+    '$(vCutoff)' AS Cutoff
+FROM [$(vData)/orders.qvd] (qvd)
+WHERE Amount > 0;
+
+LEFT JOIN (Orders)
+LOAD CustomerID, CustomerName
+FROM [lib://Warehouse/customers.qvd] (qvd);
+
+CONCATENATE (Orders)
+LOAD OrderID, CustomerID, GrossAmount, OrderDate, Cutoff
+FROM [lib://Archive/orders.qvd] (qvd);

@@ -1,0 +1,6 @@
+`Quarter Sales`:
+LOAD `Order ID`, `Raw Amount` AS "Net"" Amount", $(vStart) AS StartDate
+FROM `$(vRoot)/sales.qvd` (qvd);
+Summary:
+LOAD Sum("Net"" Amount") AS Revenue RESIDENT `Quarter Sales`;
+STORE Summary INTO `lib://Exports/revenue.qvd` (qvd);

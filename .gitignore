@@ -1,0 +1,13 @@
+/bin/
+node_modules/
+.cache/
+.firecrawl/
+coverage.out
+*.test
+__pycache__/
+*.py[cod]
+.DS_Store
+/testdata/real_samples/
+tree-sitter-qlik/*.so
+tree-sitter-qlik/*.dylib
+tree-sitter-qlik/*.dll

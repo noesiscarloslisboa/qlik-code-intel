@@ -1,0 +1,8 @@
+[Daily Sales]:
+NOCONCATENATE LOAD
+    OrderDate,
+    Sum(GrossAmount) AS Revenue
+RESIDENT Orders
+GROUP BY OrderDate;
+
+STORE [Daily Sales] INTO [lib://Exports/daily_sales.qvd] (qvd);

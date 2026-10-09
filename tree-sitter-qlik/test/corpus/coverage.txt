@@ -1,0 +1,196 @@
+================================================================================
+Empty assignments, omitted arguments and GROUP BY expressions
+================================================================================
+
+LET vEmpty =;
+LET vChoice = If(vReady, vAmount,);
+Totals:
+LOAD Account & Num(LineNo, '000') AS Key, Sum(Amount) AS Total,
+     If(Ready, If(Amount > 0, Amount,),) AS Selected
+FROM [input.qvd] (qvd)
+GROUP BY Account & Num(LineNo, '000'), Region;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (let_statement
+    (variable_name
+      (identifier)))
+  (let_statement
+    (variable_name
+      (identifier))
+    (function_call
+      (identifier)
+      (bare_variable_reference
+        (identifier))
+      (bare_variable_reference
+        (identifier))))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (binary_expression
+          (field_reference
+            (identifier))
+          (function_call
+            (identifier)
+            (field_reference
+              (identifier))
+            (string)))
+        (field_name
+          (identifier)))
+      (load_field
+        (function_call
+          (identifier)
+          (field_reference
+            (identifier)))
+        (field_name
+          (identifier)))
+      (load_field
+        (function_call
+          (identifier)
+          (field_reference
+            (identifier))
+          (function_call
+            (identifier)
+            (binary_expression
+              (field_reference
+                (identifier))
+              (number))
+            (field_reference
+              (identifier))))
+        (field_name
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec))
+    (group_by_clause
+      (binary_expression
+        (field_reference
+          (identifier))
+        (function_call
+          (identifier)
+          (field_reference
+            (identifier))
+          (string)))
+      (field_reference
+        (identifier)))))
+
+================================================================================
+HIERARCHY keeps input and output parameter roles
+================================================================================
+
+Tree:
+NoConcatenate
+Hierarchy(ID, Parent, Caption, ParentCaption, Caption, [Branch Path], '/', Depth)
+LOAD ID, Parent, Caption FROM [nodes.qvd] (qvd);
+Sparse: Hierarchy(ID, Parent, Caption,,, 'Branch Path', $(vSep), 'Distance')
+LOAD * RESIDENT Tree;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (load_prefix)
+    (load_prefix
+      (hierarchy_prefix
+        (field_reference
+          (identifier))
+        (field_reference
+          (identifier))
+        (field_reference
+          (identifier))
+        (field_name
+          (identifier))
+        (field_reference
+          (identifier))
+        (field_name
+          (bracket_name))
+        (string)
+        (field_name
+          (identifier))))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier)))
+      (load_field
+        (field_reference
+          (identifier)))
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (load_prefix
+      (hierarchy_prefix
+        (field_reference
+          (identifier))
+        (field_reference
+          (identifier))
+        (field_reference
+          (identifier))
+        (field_name)
+        (variable_reference
+          (variable_name
+            (identifier)))
+        (field_name)))
+    (field_list
+      (wildcard))
+    (resident_clause
+      (table_name
+        (identifier)))))
+
+================================================================================
+BUNDLE retains ordinary LOAD sources and opaque INLINE content
+================================================================================
+
+Assets: BUNDLE INFO LOAD AssetID, FileName FROM [assets.csv] (txt);
+Icons: BUNDLE LOAD * INLINE [ID,Path
+1,$(vGhost)/ghost.png
+];
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (load_prefix
+      (bundle_prefix))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier)))
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (load_prefix
+      (bundle_prefix))
+    (field_list
+      (wildcard))
+    (inline_clause
+      (bracket_name
+        (variable_reference
+          (variable_name
+            (identifier)))))))

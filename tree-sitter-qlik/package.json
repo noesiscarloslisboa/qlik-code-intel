@@ -1,0 +1,16 @@
+{
+  "name": "tree-sitter-qlik",
+  "version": "0.1.0",
+  "description": "Independently implemented Tree-sitter grammar for Qlik Sense load scripts",
+  "license": "MIT",
+  "private": true,
+  "main": "grammar.js",
+  "scripts": {
+    "generate": "tree-sitter generate",
+    "test": "tree-sitter test",
+    "check-generated": "node ../scripts/check-generated.mjs"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "0.25.10"
+  }
+}

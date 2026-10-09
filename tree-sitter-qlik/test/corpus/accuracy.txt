@@ -1,0 +1,169 @@
+==================
+LET bare variables and interpretation functions
+==================
+LET vTotal = If(vFlag, (vBase + Alt(vOffset, 0)), 'vFake') & '$(vExtra)';
+LET vDate = Date#('2024-01-01', 'YYYY-MM-DD');
+T: LOAD Num#(RawAmount, '#,##0.00') AS Amount FROM [raw.qvd] (qvd);
+---
+
+(source_file
+  (let_statement
+    (variable_name
+      (identifier))
+    (binary_expression
+      (function_call
+        (identifier)
+        (bare_variable_reference
+          (identifier))
+        (parenthesized_expression
+          (binary_expression
+            (bare_variable_reference
+              (identifier))
+            (function_call
+              (identifier)
+              (bare_variable_reference
+                (identifier))
+              (number))))
+        (string))
+      (string
+        (variable_reference
+          (variable_name
+            (identifier))))))
+  (let_statement
+    (variable_name
+      (identifier))
+    (function_call
+      (interpretation_function)
+      (string)
+      (string)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (function_call
+          (interpretation_function)
+          (field_reference
+            (identifier))
+          (string))
+        (field_name
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec))))
+
+==================
+Symbolic labels, aliases and table references
+==================
+$(vTarget): LOAD Value AS $(vAlias) FROM [$(vRoot)/source.qvd] (qvd);
+Other: LOAD * RESIDENT $(vTarget);
+LEFT JOIN ($(vTarget)) LOAD ID FROM [joined.qvd] (qvd);
+STORE $(vTarget) INTO [$(vRoot)/out.qvd] (qvd);
+---
+
+(source_file
+  (load_statement
+    (table_label
+      (table_name
+        (variable_reference
+          (variable_name
+            (identifier)))))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))
+        (field_name
+          (variable_reference
+            (variable_name
+              (identifier))))))
+    (from_clause
+      (data_source
+        (bracket_name
+          (variable_reference
+            (variable_name
+              (identifier)))))
+      (format_spec)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (wildcard))
+    (resident_clause
+      (table_name
+        (variable_reference
+          (variable_name
+            (identifier))))))
+  (load_statement
+    (load_prefix
+      (join_prefix
+        (table_name
+          (variable_reference
+            (variable_name
+              (identifier))))))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec)))
+  (store_statement
+    (table_name
+      (variable_reference
+        (variable_name
+          (identifier))))
+    (data_source
+      (bracket_name
+        (variable_reference
+          (variable_name
+            (identifier)))))
+    (format_spec)))
+
+==================
+Each preceding LOAD retains its own syntax tree
+==================
+Result:
+LOAD NetAmount AS Revenue;
+// intermediate stage
+LOAD Amount * Rate AS NetAmount;
+LOAD Amount, Rate FROM [raw.qvd] (qvd);
+---
+
+(source_file
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))
+        (field_name
+          (identifier)))))
+  (comment)
+  (load_statement
+    (field_list
+      (load_field
+        (binary_expression
+          (field_reference
+            (identifier))
+          (field_reference
+            (identifier)))
+        (field_name
+          (identifier)))))
+  (load_statement
+    (field_list
+      (load_field
+        (field_reference
+          (identifier)))
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec))))

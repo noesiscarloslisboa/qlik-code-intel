@@ -1,0 +1,5 @@
+// Original examples for qlik-code-intelligence.
+SET vData = lib://Warehouse;
+LET vCutoff = MakeDate(2024, 1, 1);
+$(Include=includes/common.qvs);
+$(Must_Include=includes/required.qvs);

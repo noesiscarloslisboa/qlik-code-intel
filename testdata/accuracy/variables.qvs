@@ -1,0 +1,15 @@
+// Original fixtures: symbolic names are intentionally not evaluated.
+SET vRoot = lib://Warehouse;
+SET vTarget = Sales;
+SET vAlias = ParsedDate;
+LET vBase = 100;
+LET vRate = 0.2;
+LET vNet = vBase * (1 - vRate);
+LET vDate = Date#('2024-01-01', 'YYYY-MM-DD');
+
+$(vTarget):
+LOAD ID, Date#(RawDate, 'YYYY-MM-DD') AS $(vAlias)
+FROM [$(vRoot)/sales.qvd] (qvd);
+
+Snapshot: LOAD * RESIDENT $(vTarget);
+STORE $(vTarget) INTO [$(vRoot)/sales_snapshot.qvd] (qvd);

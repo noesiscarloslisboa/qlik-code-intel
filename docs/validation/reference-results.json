@@ -1,0 +1,227 @@
+{
+  "repository": "https://github.com/muehan/vs-qlik-languageserver",
+  "revision": "681d077f85cf277dc578f4aa4ef34ae0048d6ff6",
+  "verified_sample_blobs": 10,
+  "files": [
+    {
+      "path": "validation/asAlingment.qvs",
+      "loads": 3,
+      "definitions": 25,
+      "references": 30,
+      "dependencies": 6,
+      "diagnostics": 9,
+      "diagnostic_codes": {
+        "missing-token": 3,
+        "syntax-error": 1,
+        "unsupported": 3,
+        "unterminated-statement": 2
+      }
+    },
+    {
+      "path": "validation/comment.qvs",
+      "loads": 3,
+      "definitions": 9,
+      "references": 12,
+      "dependencies": 6,
+      "diagnostics": 7,
+      "diagnostic_codes": {
+        "syntax-error": 2,
+        "unsupported": 1,
+        "unsupported-control": 3,
+        "unterminated-statement": 1
+      }
+    },
+    {
+      "path": "validation/function.qvs",
+      "loads": 0,
+      "definitions": 0,
+      "references": 0,
+      "dependencies": 0,
+      "diagnostics": 2,
+      "diagnostic_codes": {
+        "unsupported": 1,
+        "unterminated-statement": 1
+      }
+    },
+    {
+      "path": "validation/keywords.qvs",
+      "loads": 2,
+      "definitions": 4,
+      "references": 4,
+      "dependencies": 2,
+      "diagnostics": 5,
+      "diagnostic_codes": {
+        "syntax-error": 1,
+        "unsupported": 4
+      }
+    },
+    {
+      "path": "validation/linter.qvs",
+      "loads": 4,
+      "definitions": 23,
+      "references": 70,
+      "dependencies": 30,
+      "diagnostics": 6,
+      "diagnostic_codes": {
+        "missing-token": 1,
+        "syntax-error": 1,
+        "unsupported": 1,
+        "unsupported-control": 2,
+        "unterminated-statement": 1
+      }
+    },
+    {
+      "path": "validation/linter_as_withtab.qvs",
+      "loads": 3,
+      "definitions": 15,
+      "references": 12,
+      "dependencies": 3,
+      "diagnostics": 0,
+      "diagnostic_codes": {}
+    },
+    {
+      "path": "validation/small.qvs",
+      "loads": 6,
+      "definitions": 10,
+      "references": 16,
+      "dependencies": 9,
+      "diagnostics": 8,
+      "diagnostic_codes": {
+        "unsupported": 2,
+        "unsupported-control": 6
+      }
+    },
+    {
+      "path": "validation/strings.qvs",
+      "loads": 1,
+      "definitions": 3,
+      "references": 5,
+      "dependencies": 1,
+      "diagnostics": 1,
+      "diagnostic_codes": {
+        "syntax-error": 1
+      }
+    },
+    {
+      "path": "validation/test.qvs",
+      "loads": 6,
+      "definitions": 16,
+      "references": 68,
+      "dependencies": 37,
+      "diagnostics": 17,
+      "diagnostic_codes": {
+        "syntax-error": 1,
+        "unsupported": 9,
+        "unsupported-control": 4,
+        "unsupported-literal": 2,
+        "unterminated-statement": 1
+      }
+    },
+    {
+      "path": "validation/trace.qvs",
+      "loads": 0,
+      "definitions": 0,
+      "references": 0,
+      "dependencies": 0,
+      "diagnostics": 23,
+      "diagnostic_codes": {
+        "syntax-error": 6,
+        "unsupported": 17
+      }
+    }
+  ],
+  "totals": {
+    "loads": 28,
+    "definitions": 105,
+    "references": 217,
+    "dependencies": 94,
+    "diagnostics": 78
+  },
+  "retrieval_checks": [
+    {
+      "command": "map",
+      "query": "",
+      "budget": 256,
+      "output_bytes": 230,
+      "sha256": "e04a9089266a01ce7e5de25b1f012fc087a9d6ea563c5242f9ef8c2bc0f4ab6c"
+    },
+    {
+      "command": "map",
+      "query": "",
+      "budget": 512,
+      "output_bytes": 496,
+      "sha256": "6b78da6a6a4be825b54c5c5c79d55c5863ad85c39ffd5f2b386f2c5568b4af5f"
+    },
+    {
+      "command": "map",
+      "query": "",
+      "budget": 1024,
+      "output_bytes": 1014,
+      "sha256": "c3e4c443363525785cf1d2d06729b0a68ec290a9d4bdbf38f4940006daf5c3c5"
+    },
+    {
+      "command": "map",
+      "query": "",
+      "budget": 2048,
+      "output_bytes": 2047,
+      "sha256": "e88178c59138721cb1800f87a725dd15badd271c143be41519e5ec1dfdfc3a3d"
+    },
+    {
+      "command": "map",
+      "query": "Floor_test",
+      "budget": 256,
+      "output_bytes": 235,
+      "sha256": "e24f3c51a81194de6c3269f3a543d7e89bd33b2f7f8897da656d80a6cff0caa9"
+    },
+    {
+      "command": "map",
+      "query": "Floor_test",
+      "budget": 512,
+      "output_bytes": 493,
+      "sha256": "a2a04db983675b757110d399fc7f4f764cb9ba0fccb95c2673ae294c3f4026c5"
+    },
+    {
+      "command": "map",
+      "query": "Floor_test",
+      "budget": 1024,
+      "output_bytes": 1002,
+      "sha256": "524e48e1ec02b04c34fd96a5fc5f87e6494b01a97f2a68ae2a9d27dddd652ba2"
+    },
+    {
+      "command": "map",
+      "query": "Floor_test",
+      "budget": 2048,
+      "output_bytes": 2034,
+      "sha256": "ff6c6f51a18770eb45e7feefb3863ae7ee831f229f40bcf312d7a89b83657ba3"
+    },
+    {
+      "command": "context",
+      "query": "Floor_test",
+      "budget": 256,
+      "output_bytes": 225,
+      "sha256": "b6f3a3ed174a83ede4a79822d0a36c692b145b1bf55d35ab43c4bface92dc11b"
+    },
+    {
+      "command": "context",
+      "query": "Floor_test",
+      "budget": 512,
+      "output_bytes": 485,
+      "sha256": "ddf2dd8a8fb8440ca430de5ebc3fb331689681a7457e1a561c4c64ca0765f11c"
+    },
+    {
+      "command": "context",
+      "query": "Floor_test",
+      "budget": 1024,
+      "output_bytes": 989,
+      "sha256": "7c9909c2880619eaa9c3a80e2e19c97b65334d21240ca5de8b02f00af8e3aa57"
+    },
+    {
+      "command": "context",
+      "query": "Floor_test",
+      "budget": 2048,
+      "output_bytes": 1536,
+      "sha256": "d3807f47c671f519a8f949f4d026bfa2f183c1a1c16377eed0e4c9d5089dfd4c"
+    }
+  ],
+  "note": "Diagnostics are retained; these editor samples include invalid/unsupported syntax. Counts do not imply complete semantic accuracy."
+}

@@ -1,0 +1,6 @@
+SET vRoot = C:\Data\;
+SET vOut = lib://Exports/;
+LET vRun = 1;
+LET vStage_$(vRun) = now();
+LET vEmpty =;
+LET vRows_$(vRun) = NoOfRows('$(vStage_$(vRun))');

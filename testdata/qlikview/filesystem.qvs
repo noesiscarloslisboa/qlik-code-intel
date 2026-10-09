@@ -1,0 +1,9 @@
+SET vRoot = C:\Data;
+LET vRun = 2;
+LET vMetric_$(vRun) = 42;
+Batch_$(vRun):
+LOAD Raw_$(vRun) AS Amount_$(vRun) FROM [$(vRoot)\sales.qvd] (qvd);
+Sheet:
+LOAD ID FROM excel\items.xls (biff, embedded labels, table is Rows$);
+STORE Batch_$(vRun) INTO [\\server\share\sales.qvd] (qvd);
+$(Include=..\config\setup.qvs);

@@ -1,0 +1,8 @@
+TRACE 'this unsupported construct has a ; in a string';
+DROP TABLE OldOrders;
+Recovered:
+LOAD ItemID AS ID FROM [lib://Data/items.qvd] (qvd);
+SET vAfter = ok;
+IF 1 = 1 THEN
+Conditional: LOAD ID FROM [conditional.qvd] (qvd);
+END IF

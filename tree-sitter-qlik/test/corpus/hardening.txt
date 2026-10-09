@@ -1,0 +1,173 @@
+==================
+Missing semicolon recovers before a line-start label
+==================
+UNKNOWN unfinished header
+`Recovered Table`:
+NOCONCATENATE LOAD ID FROM [items.qvd] (qvd);
+UNKNOWN
+---
+
+(source_file
+  (unsupported_statement
+    (identifier)
+    (unterminated_unsupported_body))
+  (load_statement
+    (table_label
+      (table_name
+        (backtick_name)))
+    (load_prefix)
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec)))
+  (unsupported_statement
+    (identifier)
+    (unterminated_unsupported_body)))
+
+==================
+Unsupported quoted and expanded text has no reference nodes
+==================
+UNKNOWN 'outer $(vGhost, 'inner;
+Ghost: LOAD Fake;') end' `also;
+Ghost: LOAD Fake;` /* ; Ghost: LOAD Fake; */;
+Real: LOAD ID AUTOGENERATE 1;
+---
+
+(source_file
+  (unsupported_statement
+    (identifier)
+    (unsupported_body))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (autogenerate_clause
+      (number))))
+
+==================
+Backtick identifiers, paths, and alternative quoting
+==================
+SET `vRoot` = `text;with quotes`;
+LET vTotal = `vBase` + 1;
+`Quarter One`: LOAD `Raw Amount` AS `Net Amount`, 1 AS `$(vAlias)` FROM `lib://$(vRoot)/items.qvd` (qvd);
+Snapshot: LOAD * RESIDENT `Quarter One`;
+STORE `Quarter One` INTO `lib://Out/result.qvd` (qvd);
+$(Include=`config/$(vRegion).qvs`);
+"Tick` Table": LOAD "Raw` Amount" AS [Net` Amount] AUTOGENERATE 1;
+---
+
+(source_file
+  (set_statement
+    (variable_name
+      (backtick_name))
+    (set_value
+      (backtick_name)))
+  (let_statement
+    (variable_name
+      (identifier))
+    (binary_expression
+      (bare_variable_reference
+        (backtick_name))
+      (number)))
+  (load_statement
+    (table_label
+      (table_name
+        (backtick_name)))
+    (field_list
+      (load_field
+        (field_reference
+          (backtick_name))
+        (field_name
+          (backtick_name)))
+      (load_field
+        (number)
+        (field_name
+          (backtick_name
+            (variable_reference
+              (variable_name
+                (identifier)))))))
+    (from_clause
+      (data_source
+        (backtick_name
+          (variable_reference
+            (variable_name
+              (identifier)))))
+      (format_spec)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (wildcard))
+    (resident_clause
+      (table_name
+        (backtick_name))))
+  (store_statement
+    (table_name
+      (backtick_name))
+    (data_source
+      (backtick_name))
+    (format_spec))
+  (include_statement
+    (include_mode)
+    (include_path
+      (backtick_name
+        (variable_reference
+          (variable_name
+                  (identifier))))))
+  (load_statement
+    (table_label
+      (table_name
+        (quoted_name)))
+    (field_list
+      (load_field
+        (field_reference
+          (quoted_name))
+        (field_name
+          (bracket_name))))
+    (autogenerate_clause
+      (number))))
+
+==================
+REM prefixes remain names and actual REM comments stay opaque
+==================
+REM_Table: LOAD Reminder AS Remaining AUTOGENERATE 1;
+UNKNOWN raw REM text
+Ghost: LOAD Fake; tail;
+Recovered: LOAD ID AUTOGENERATE 1;
+---
+
+(source_file
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))
+        (field_name
+          (identifier))))
+    (autogenerate_clause
+      (number)))
+  (unsupported_statement
+    (identifier)
+    (unsupported_body))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (autogenerate_clause
+      (number))))

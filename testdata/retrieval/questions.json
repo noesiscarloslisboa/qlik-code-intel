@@ -1,0 +1,350 @@
+{
+  "files": [
+    {
+      "path": "00_config.qvs",
+      "sha256": "838817f76cac75549af807c01ddc488a42b9858e2710a1be0342823cc1259d88"
+    },
+    {
+      "path": "10_pipeline.qvs",
+      "sha256": "e0d5bef7b82bdb67bdbf02d222e287f116b03dab91829a226d3a1eadfa28af9d"
+    }
+  ],
+  "cases": [
+    {
+      "id": "Q01",
+      "question": "Locate the event table definition.",
+      "command": "find",
+      "query": "Events",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 1,
+          "name": "Events"
+        }
+      ],
+      "kind": "table",
+      "role": "definition"
+    },
+    {
+      "id": "Q02",
+      "question": "Locate the hierarchy table definition.",
+      "command": "find",
+      "query": "Tree",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 34,
+          "name": "Tree"
+        }
+      ],
+      "kind": "table",
+      "role": "definition"
+    },
+    {
+      "id": "Q03",
+      "question": "Locate the BUNDLE table definition.",
+      "command": "find",
+      "query": "Icons",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 38,
+          "name": "Icons"
+        }
+      ],
+      "kind": "table",
+      "role": "definition"
+    },
+    {
+      "id": "Q04",
+      "question": "Locate a composed variable definition.",
+      "command": "find",
+      "query": "vStage_$(vRun)",
+      "expected": [
+        {
+          "path": "00_config.qvs",
+          "line": 4,
+          "name": "vStage_$(vRun)"
+        }
+      ],
+      "kind": "variable",
+      "role": "definition"
+    },
+    {
+      "id": "Q05",
+      "question": "Locate an empty LET assignment.",
+      "command": "find",
+      "query": "vEmpty",
+      "expected": [
+        {
+          "path": "00_config.qvs",
+          "line": 5,
+          "name": "vEmpty"
+        }
+      ],
+      "kind": "variable",
+      "role": "definition"
+    },
+    {
+      "id": "Q06",
+      "question": "Locate a nested variable use.",
+      "command": "find",
+      "query": "vStage_$(vRun)",
+      "expected": [
+        {
+          "path": "00_config.qvs",
+          "line": 6,
+          "name": "vStage_$(vRun)"
+        }
+      ],
+      "kind": "variable",
+      "role": "reference"
+    },
+    {
+      "id": "Q07",
+      "question": "Summarize the table before its consumers.",
+      "command": "map",
+      "query": "Events",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 1,
+          "contains": [
+            "table Events"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Q08",
+      "question": "Summarize the hierarchy table before references.",
+      "command": "map",
+      "query": "Tree",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 34,
+          "contains": [
+            "table Tree"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Q09",
+      "question": "Summarize a BUNDLE table.",
+      "command": "map",
+      "query": "Icons",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 38,
+          "contains": [
+            "table Icons"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Q10",
+      "question": "Retain an empty assignment under small budgets.",
+      "command": "map",
+      "query": "vEmpty",
+      "expected": [
+        {
+          "path": "00_config.qvs",
+          "line": 5,
+          "contains": [
+            "vEmpty"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Q11",
+      "question": "Retain a late output alias in a compact summary.",
+      "command": "map",
+      "query": "LateValue",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 1,
+          "contains": [
+            "LateValue"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Q12",
+      "question": "Return the table definition in the first source block.",
+      "command": "context",
+      "query": "Events",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "id": "Q13",
+      "question": "Return the hierarchy definition before references.",
+      "command": "context",
+      "query": "Tree",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 34
+        }
+      ]
+    },
+    {
+      "id": "Q14",
+      "question": "Return the original empty assignment.",
+      "command": "context",
+      "query": "vEmpty",
+      "expected": [
+        {
+          "path": "00_config.qvs",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "id": "Q15",
+      "question": "Return the requested alias expression first.",
+      "command": "context",
+      "query": "LateValue",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "id": "Q16",
+      "question": "Return the assignment with a nested expansion.",
+      "command": "context",
+      "query": "vRows_$(vRun)",
+      "expected": [
+        {
+          "path": "00_config.qvs",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "id": "Q17",
+      "question": "Identify the direct QVD input.",
+      "command": "deps",
+      "query": "Events",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 26,
+          "kind": "from",
+          "from": {
+            "kind": "table",
+            "name": "Events"
+          },
+          "to": {
+            "kind": "source",
+            "name": "data\\events.qvd"
+          }
+        }
+      ],
+      "kind": "table",
+      "direction": "upstream"
+    },
+    {
+      "id": "Q18",
+      "question": "Find a producer despite a stronger consumer name.",
+      "command": "deps",
+      "query": "snapshot.qvd",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 29,
+          "kind": "store",
+          "from": {
+            "kind": "source",
+            "name": "lib://Exports/snapshot.qvd"
+          },
+          "to": {
+            "kind": "table",
+            "name": "Snapshot"
+          }
+        }
+      ],
+      "kind": "qvd",
+      "direction": "upstream"
+    },
+    {
+      "id": "Q19",
+      "question": "Retain literal and symbolic consumers, excluding backup names.",
+      "command": "deps",
+      "query": "events.qvd",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 26,
+          "kind": "from",
+          "from": {
+            "kind": "table",
+            "name": "Events"
+          },
+          "to": {
+            "kind": "source",
+            "name": "data\\events.qvd"
+          }
+        },
+        {
+          "path": "10_pipeline.qvs",
+          "line": 27,
+          "kind": "from",
+          "from": {
+            "kind": "table",
+            "name": "Symbolic"
+          },
+          "to": {
+            "kind": "source",
+            "name": "$(vRoot)events.qvd"
+          }
+        }
+      ],
+      "kind": "qvd",
+      "direction": "downstream",
+      "forbidden": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 41
+        }
+      ]
+    },
+    {
+      "id": "Q20",
+      "question": "Find the symbolic QVD producer.",
+      "command": "deps",
+      "query": "events.qvd",
+      "expected": [
+        {
+          "path": "10_pipeline.qvs",
+          "line": 30,
+          "kind": "store",
+          "from": {
+            "kind": "source",
+            "name": "$(vOut)events.qvd"
+          },
+          "to": {
+            "kind": "table",
+            "name": "Events"
+          }
+        }
+      ],
+      "kind": "qvd",
+      "direction": "upstream"
+    }
+  ]
+}

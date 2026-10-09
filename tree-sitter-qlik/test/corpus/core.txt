@@ -1,0 +1,334 @@
+==================
+Assignments and dollar expansions
+==================
+SET vPath = lib://Data;
+SET vEmpty =;
+LET vDate = Date(Today() - 1);
+LET vCopy = $(vDate);
+SET vText = '$(vDate);still text';
+---
+
+(source_file
+  (set_statement
+    (variable_name
+      (identifier))
+    (set_value
+      (set_text)))
+  (set_statement
+    (variable_name
+      (identifier)))
+  (let_statement
+    (variable_name
+      (identifier))
+    (function_call
+      (identifier)
+      (binary_expression
+        (function_call
+          (identifier))
+        (number))))
+  (let_statement
+    (variable_name
+      (identifier))
+    (variable_reference
+      (variable_name
+        (identifier))))
+  (set_statement
+    (variable_name
+      (identifier))
+    (set_value
+      (string
+        (variable_reference
+          (variable_name
+            (identifier)))))))
+
+==================
+Tables, aliases, expressions and formats
+==================
+[Sales Orders]:
+LOAD DISTINCT OrderID, [Customer ID], Amount * 1.23 AS Gross, If(Amount > 0, 'yes', 'no') AS Active
+FROM [$(vPath)/orders.qvd] (qvd)
+WHERE Amount > 0 AND Active = 'yes';
+Summary:
+LOAD [Customer ID], Sum(Gross) AS Total RESIDENT [Sales Orders] GROUP BY [Customer ID] ORDER BY Total DESC;
+---
+
+(source_file
+  (load_statement
+    (table_label
+      (table_name
+        (bracket_name)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier)))
+      (load_field
+        (field_reference
+          (bracket_name)))
+      (load_field
+        (binary_expression
+          (field_reference
+            (identifier))
+          (number))
+        (field_name
+          (identifier)))
+      (load_field
+        (function_call
+          (identifier)
+          (binary_expression
+            (field_reference
+              (identifier))
+            (number))
+          (string)
+          (string))
+        (field_name
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name
+          (variable_reference
+            (variable_name
+              (identifier)))))
+      (format_spec))
+    (where_clause
+      (binary_expression
+        (binary_expression
+          (field_reference
+            (identifier))
+          (number))
+        (binary_expression
+          (field_reference
+            (identifier))
+          (string)))))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (bracket_name)))
+      (load_field
+        (function_call
+          (identifier)
+          (field_reference
+            (identifier)))
+        (field_name
+          (identifier))))
+    (resident_clause
+      (table_name
+        (bracket_name)))
+    (group_by_clause
+      (field_reference
+        (bracket_name)))
+    (order_by_clause
+      (field_reference
+        (identifier)))))
+
+==================
+Join, concatenate, store and include
+==================
+LEFT JOIN (Sales) LOAD ID, Name FROM names.qvd (qvd);
+CONCATENATE (Sales) LOAD * FROM 'archive.qvd' (qvd);
+JOIN LOAD ID RESIDENT Names;
+CONCATENATE LOAD * RESIDENT Older;
+STORE Sales INTO [lib://Export/sales.qvd] (qvd);
+STORE ID, Name FROM Sales INTO 'subset.csv' (txt);
+$(Include=../config.qvs);
+$(Must_Include=$(vRoot)/required.qvs);
+---
+
+(source_file
+  (load_statement
+    (load_prefix
+      (join_prefix
+        (table_name
+          (identifier))))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier)))
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bare_path))
+      (format_spec)))
+  (load_statement
+    (load_prefix
+      (concatenate_prefix
+        (table_name
+          (identifier))))
+    (field_list
+      (wildcard))
+    (from_clause
+      (data_source
+        (string))
+      (format_spec)))
+  (load_statement
+    (load_prefix
+      (join_prefix))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (resident_clause
+      (table_name
+        (identifier))))
+  (load_statement
+    (load_prefix
+      (concatenate_prefix))
+    (field_list
+      (wildcard))
+    (resident_clause
+      (table_name
+        (identifier))))
+  (store_statement
+    (table_name
+      (identifier))
+    (data_source
+      (bracket_name))
+    (format_spec))
+  (store_statement
+    (field_list
+      (load_field
+        (field_reference
+          (identifier)))
+      (load_field
+        (field_reference
+          (identifier))))
+    (table_name
+      (identifier))
+    (data_source
+      (string))
+    (format_spec))
+  (include_statement
+    (include_mode)
+    (include_path))
+  (include_statement
+    (include_mode)
+    (include_path
+      (variable_reference
+        (variable_name
+          (identifier))))))
+
+==================
+Comments, case and escaped quotes
+==================
+// ignore LOAD Fake FROM fake.qvd;
+/* SET fake = bogus; */
+REM LOAD AlsoFake;
+sEt vMessage = 'it''s; fine';
+"Quoted Table":
+LoAd "Field Name" AS [Output], 'a; b' AS Text, 1 AS Constant AUTOGENERATE 1;
+---
+
+(source_file
+  (comment)
+  (comment)
+  (comment)
+  (set_statement
+    (variable_name
+      (identifier))
+    (set_value
+      (string)))
+  (load_statement
+    (table_label
+      (table_name
+        (quoted_name)))
+    (field_list
+      (load_field
+        (field_reference
+          (quoted_name))
+        (field_name
+          (bracket_name)))
+      (load_field
+        (string)
+        (field_name
+          (identifier)))
+      (load_field
+        (number)
+        (field_name
+          (identifier))))
+    (autogenerate_clause
+      (number))))
+
+==================
+Unsupported constructs preserve subsequent statements
+==================
+TRACE 'hello; world';
+DROP TABLE Old;
+Result: LOAD ID FROM [data.qvd] (qvd);
+SET vAfter = yes;
+---
+
+(source_file
+  (unsupported_statement
+    (identifier)
+    (unsupported_body))
+  (unsupported_statement
+    (identifier)
+    (unsupported_body))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec)))
+  (set_statement
+    (variable_name
+      (identifier))
+    (set_value
+      (set_text))))
+
+==================
+Unsupported line-terminated control flow preserves body
+==================
+FOR vFile IN FileList('*.qvd')
+InsideLoop: LOAD ID FROM [$(vFile)] (qvd);
+NEXT vFile
+IF 1 = 1 THEN
+InsideIf: LOAD ID AUTOGENERATE 1;
+END IF
+---
+
+(source_file
+  (unsupported_control_statement
+    (control_keyword))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name
+          (variable_reference
+            (variable_name
+              (identifier)))))
+      (format_spec)))
+  (unsupported_control_statement
+    (control_keyword))
+  (unsupported_control_statement
+    (control_keyword))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))))
+    (autogenerate_clause
+      (number)))
+  (unsupported_control_statement
+    (control_keyword)))

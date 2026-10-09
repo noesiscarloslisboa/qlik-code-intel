@@ -1,0 +1,6 @@
+"orphan heading"
+'literal containing LOAD Imaginary and $(vGhost)'
+$(Must_Include=config.qvs);
+Recovered:
+LOAD RecordID, If(Enabled = 1, Amount, 0) AS Accepted
+FROM [items.qvd] (qvd);

@@ -1,0 +1,4 @@
+UNKNOWN 'opaque $(vGhost) text;
+Ghost: LOAD Fake FROM [fake.qvd];'
+`Recovered Table`:
+LOAD `Raw ID` AS `Recovered ID` FROM [recovered.qvd] (qvd);
