@@ -69,6 +69,13 @@ runtime linking. Native jobs run race tests, executable integration tests, vet,
 then build and test the extracted archive. Windows checks PE imports and runs
 smoke tests without compiler paths. Ubuntu also runs `make check` on Go 1.23.x.
 
+The original v0.1.0 integration harness used an extensionless temporary executable
+name, which Go cannot launch on Windows. Its Windows backfill uses a Go test
+overlay changing only that `_test.go` filename to end in `.exe`. The checkout,
+production sources, and tag remain unchanged. Later tags include the portable
+harness directly. Windows archives include the GCC runtime exception and MinGW
+runtime notices alongside the other dependency licenses.
+
 Release packaging uses Python 3.12+ and its standard library, with no new CLI
 runtime dependencies. Each archive contains only the executable, `LICENSE`,
 `THIRD_PARTY_NOTICES.md`, `licenses/`, and `build-info.json` recording the source

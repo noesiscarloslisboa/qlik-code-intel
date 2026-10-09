@@ -135,12 +135,31 @@ jobs:
         run: |
           "C:\msys64\ucrt64\bin" >> $env:GITHUB_PATH
           "CGO_LDFLAGS=-static" >> $env:GITHUB_ENV
+      - name: Adapt the original v0.1.0 Windows test harness
+        if: runner.os == 'Windows' && needs.resolve.outputs.version == 'v0.1.0'
+        shell: python
+        run: |
+          import json, os
+          from pathlib import Path
+          source = Path("source/internal/cli/integration_test.go").resolve()
+          original = source.read_text(encoding="utf-8")
+          before = 'filepath.Join(t.TempDir(), "qlik-repomap")'
+          assert original.count(before) == 1, "unexpected v0.1.0 integration harness"
+          patched = Path(os.environ["RUNNER_TEMP"]) / "integration_test.go"
+          patched.write_text(original.replace(before, 'filepath.Join(t.TempDir(), "qlik-repomap.exe")'), encoding="utf-8")
+          overlay = patched.with_suffix(".json")
+          overlay.write_text(json.dumps({"Replace": {str(source): str(patched)}}), encoding="utf-8")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
+              env.write(f"TEST_OVERLAY={overlay}\n")
       - name: Test native source
         working-directory: source
         run: |
           go test -race -count=1 ./...
-          go test -tags=integration -count=1 ./...
+          overlay=()
+          if test -n "${TEST_OVERLAY:-}"; then overlay=(-overlay "$TEST_OVERLAY"); fi
+          go test "${overlay[@]}" -tags=integration -count=1 ./...
           go vet ./...
+          git diff --exit-code
       - name: Package and test the extracted executable
         env:
           VERSION: ${{ needs.resolve.outputs.version }}

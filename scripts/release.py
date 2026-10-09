@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import tarfile
 import tempfile
@@ -21,7 +22,7 @@ MODULE = "github.com/noesiscarloslisboa/qlik-code-intel"
 
 
 def run(args, **kwargs):
-    return subprocess.check_output([str(arg) for arg in args], text=True, **kwargs)
+    return subprocess.check_output([str(arg) for arg in args], text=True, encoding="utf-8", **kwargs)
 
 
 def require(condition, message):
@@ -99,6 +100,16 @@ def package(root, output, version):
             require(all((system / dll).is_file() or dll.lower().startswith("api-ms-win-")
                         for dll in imports), f"non-system DLL dependency: {imports}")
         files = {binary.name: (binary.read_bytes(), 0o755)}
+        if go["GOOS"] == "windows":
+            prefix = Path(shutil.which(os.environ["CC"])).parent.parent
+            for package_name, names in {
+                "gcc": ["COPYING.RUNTIME", "COPYING3"],
+                "crt": ["COPYING", "COPYING.MinGW-w64-runtime.txt", "COPYING.MinGW-w64.txt"],
+                "winpthreads": ["COPYING"],
+            }.items():
+                for notice in names:
+                    path = prefix / "share/licenses" / package_name / notice
+                    files[f"licenses/{package_name}/{notice}"] = (path.read_bytes(), 0o644)
         for notice in ["LICENSE", "THIRD_PARTY_NOTICES.md"]:
             files[notice] = ((root / notice).read_bytes(), 0o644)
         go_license = Path(go["GOROOT"]) / "LICENSE"

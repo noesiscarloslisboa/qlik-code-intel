@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -18,6 +19,9 @@ func TestBuiltExecutableEndToEnd(t *testing.T) {
 		t.Fatal(err)
 	}
 	binary := filepath.Join(t.TempDir(), "qlik-repomap")
+	if runtime.GOOS == "windows" {
+		binary += ".exe"
+	}
 	build := exec.Command("go", "build", "-o", binary, "./cmd/qlik-repomap")
 	build.Dir = root
 	if output, err := build.CombinedOutput(); err != nil {
