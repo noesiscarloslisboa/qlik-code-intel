@@ -7,7 +7,10 @@ The first milestone provides two components:
 - **tree-sitter-qlik**: an independently implemented Tree-sitter grammar, generated C parser, Go binding, and definition/reference queries.
 - **qlik-repomap**: a Go CLI that scans QVS repositories and retrieves compact maps, symbols, direct dependencies, and numbered source context.
 
-MIT licensed. No Qlik installation, script execution, network access during use, database, MCP server, or GUI. Each command scans current files into memory; `scan --json` exports a snapshot.
+MIT licensed. Repository retrieval works offline without a Qlik installation.
+An explicit `cloud pull` can import a saved Qlik Cloud app script over HTTPS.
+No script execution, database, MCP server, or GUI. Repository commands scan
+current files into memory; `scan --json` exports the source index.
 
 ## Download
 
@@ -52,7 +55,7 @@ Map records are ranked, so their order can differ from execution/source order. L
 
 ## Commands
 
-All commands accept `--root DIR` (default `.`). Flags may appear before or after a query. Quote names containing spaces. `--help` documents each command.
+Repository commands accept `--root DIR` (default `.`). Flags may appear before or after a query. Quote names containing spaces. `--help` documents each command.
 
 | Command | Purpose | Useful flags |
 | --- | --- | --- |
@@ -61,6 +64,7 @@ All commands accept `--root DIR` (default `.`). Flags may appear before or after
 | `find QUERY` | Find symbol occurrences | `--kind KIND`, `--role ROLE`, `--limit N`, `--json` |
 | `deps QUERY` | Show direct upstream/downstream edges | `--kind KIND`, `--direction upstream\|downstream\|both`, `--json` |
 | `context QUERY` | Retrieve numbered original source | `--tokens N` |
+| `cloud pull` | Import one saved Cloud app script | `--tenant URL`, `--app ID`, `--out NEW_DIR`, `--json` |
 | `version` | Print build version | — |
 
 ```sh
@@ -106,6 +110,62 @@ The JSON index contains `root` and `files`. Each file contains `path`, `symbols`
 Edges point **consumer → upstream input**. `Daily Sales → Orders` means `RESIDENT Orders`. For STORE, `lib://Exports/daily_sales.qvd → Daily Sales` means that output is produced from the table. `file → include` preserves the literal include target. Variable-use edges point to the variable. A `preceding` edge points to the next LOAD stage, with its location on that input stage and `statement_start_byte` on the consuming statement. These are syntactic facts, not evaluated lineage.
 
 Scanning is deterministic and case-insensitive for the `.qvs` extension. It skips `.git`, `.hg`, `.svn`, `node_modules`, `vendor`, `bin`, `dist`, `build`, and `.cache` directories. Symlinks are not followed, including a symlink supplied as the root. A repository `.gitignore` is not interpreted; other QVS files, including untracked files, are scanned. Filesystem errors fail visibly. Files must contain valid UTF-8; UTF-8 BOM and CRLF are supported. Invalid UTF-8 fails with the source path and exit code 1 before any index is written. Convert legacy or UTF-16 exports to UTF-8 before scanning them.
+
+## Understand a Qlik Cloud app
+
+**Available in source builds; not included in the published v0.1.1 binaries.**
+Build the current checkout using the instructions above. Supply an API key or
+OAuth access token through the `QLIK_CLOUD_TOKEN` environment variable, with
+permission to read the selected app and its script. The CLI does not obtain,
+refresh, or persist credentials. It accepts an HTTPS tenant origin, not an app URL.
+
+```sh
+# Set QLIK_CLOUD_TOKEN in your shell before running this.
+mkdir -p .cache/qlik-cloud
+./bin/qlik-repomap cloud pull --tenant https://example.eu.qlikcloud.com \
+  --app APP_ID --out .cache/qlik-cloud/app-snapshot --json
+./bin/qlik-repomap scan --root .cache/qlik-cloud/app-snapshot --strict
+./bin/qlik-repomap map --root .cache/qlik-cloud/app-snapshot --query Revenue --tokens 2000
+./bin/qlik-repomap context Revenue --root .cache/qlik-cloud/app-snapshot --tokens 2000
+```
+
+`cloud pull` reads app metadata, selects the latest saved script from its history,
+and downloads **that exact version ID** through the [Qlik Apps API](https://qlik.dev/apis/rest/apps/).
+A save during the download cannot substitute a newer version. Unsaved editor
+changes are not included; the selected version may no longer be the newest when
+the pull finishes. No script writes or reloads occur.
+
+The new snapshot directory contains exactly:
+
+- `script.qvs`: the decoded UTF-8 script, preserving BOM, newlines, section markers,
+  tabs, and symbolic paths. No generated headers or newline are added.
+- `manifest.json`: schema version 1, tenant/app identity, script version ID,
+  retrieval time in UTC, source filename, SHA-256, and byte length. App name,
+  script modification time/message, and last reload time are included when supplied.
+
+Use a new destination for each pull. Its parent directories must already exist
+and contain no symlinks; if necessary, use their physical path. Existing files
+are never overwritten. Snapshot directories use mode `0700` and files `0600`
+where the operating system supports these permissions. A failed write removes
+only files created by that invocation. If writing the result to stdout fails,
+the completed snapshot remains available.
+
+Keep snapshots private: `.cache/` is ignored by this repository and skipped by
+ordinary scans, while an explicit snapshot `--root` is scannable. Use one app
+per root because the current dependency index does not distinguish equal names
+across apps. Subsequent `scan`, `map`, `find`, `deps`, and `context` run offline.
+Unsupported constructs remain intact and produce the usual scan diagnostics.
+
+When citing Cloud source, associate `script.qvs` lines with the manifest's
+tenant/app/script ID after checking the source hash. Edited files no longer
+represent the exact downloaded version. Exported line numbers are not tab-local
+Cloud editor coordinates. The reported last reload time does not prove that this
+script version reloaded successfully. This increment does not retrieve reload
+logs or Cloud lineage.
+
+Requests have a 30-second timeout and a 32 MiB response limit. Normal TLS
+verification applies; redirects are rejected. Errors report HTTP status and
+access/rate-limit hints without printing response bodies or credentials.
 
 ## Grammar support
 

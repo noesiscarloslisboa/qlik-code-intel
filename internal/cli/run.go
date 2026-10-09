@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/noesiscarloslisboa/qlik-code-intel/internal/qlik"
@@ -27,9 +28,11 @@ Commands:
   find       Locate table, variable, field, source, QVD, and include occurrences
   deps       Show direct upstream/downstream dependencies of a name
   context    Retrieve relevant original source within --tokens (default 4096)
+  cloud      Import a saved Qlik Cloud script for local retrieval
   version    Print version
 
-All commands accept --root DIR (default .). Flags can precede or follow queries.
+Repository commands accept --root DIR (default .) and work offline.
+Flags can precede or follow queries. Cloud access is explicit via cloud pull.
 Use qlik-repomap <command> --help for flags. No script execution or persisted index.
 `
 
@@ -42,6 +45,10 @@ type options struct {
 // Run returns 0 on success, 2 for usage errors, and 1 for runtime/strict errors.
 // Structured output goes to stdout; recoverable diagnostics go to stderr.
 func Run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	return run(ctx, args, stdout, stderr, cloudDependencies{lookupEnv: os.LookupEnv})
+}
+
+func run(ctx context.Context, args []string, stdout, stderr io.Writer, deps cloudDependencies) int {
 	if len(args) == 0 || args[0] == "help" || args[0] == "--help" || args[0] == "-h" {
 		if _, err := io.WriteString(stdout, help); err != nil {
 			fmt.Fprintln(stderr, err)
@@ -50,6 +57,9 @@ func Run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 		return 0
 	}
 	command := args[0]
+	if command == "cloud" {
+		return runCloud(ctx, args[1:], stdout, stderr, deps)
+	}
 	if command == "version" || command == "--version" {
 		if len(args) != 1 {
 			fmt.Fprintln(stderr, "version takes no arguments")

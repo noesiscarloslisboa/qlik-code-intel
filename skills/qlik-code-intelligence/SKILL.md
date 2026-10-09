@@ -1,13 +1,14 @@
 ---
 name: qlik-code-intelligence
-description: Find Qlik Sense and QlikView QVS script definitions, references, direct dependencies, and focused source context using qlik-repomap. Use when navigating or explaining a QVS repository, locating tables, fields, variables, or QVD producers and consumers, or gathering context before script edits.
+description: Find Qlik Sense and QlikView QVS script definitions, references, direct dependencies, and focused source context using qlik-repomap. Use when explaining repositories or saved Qlik Cloud script snapshots, locating tables, fields, variables, or QVD producers and consumers, or gathering context before script edits.
 license: MIT
 ---
 
 # Qlik code intelligence
 
 Use `qlik-repomap` to retrieve source facts from UTF-8 `.qvs` scripts. It works
-offline without Qlik. It accepts exported scripts, not binary `.qvw` apps.
+offline without Qlik. It accepts exported scripts and Cloud snapshots, not binary
+`.qvw` apps. Cloud fetching is a separate explicit command.
 
 ## Locate the CLI and repository
 
@@ -54,6 +55,29 @@ Replace example names/root with the user's target. Quote names, especially space
 and dollar expansions; single quotes preserve `$()` in POSIX shells and PowerShell.
 With an executable path containing spaces, use the shell's invocation syntax
 (for example PowerShell's `& 'C:\Tools\Qlik Tools\qlik-repomap.exe' version`).
+
+## Qlik Cloud snapshots
+
+For an existing snapshot, use its directory as `--root` and inspect `manifest.json`.
+Check schema version 1, `source_file`, `source_bytes`, and `source_sha256` against
+the local source before attributing it to the recorded Cloud version. For example,
+`shasum -a 256 script.qvs` or PowerShell's `Get-FileHash script.qvs -Algorithm SHA256`
+checks the hash. Cite the tenant, app ID, and script ID alongside original
+`script.qvs` lines. If the hash differs, identify the source as locally modified;
+do not present it as the exact saved Cloud version or silently refresh it.
+
+When the task requests a Cloud import, use the user-selected tenant/app and
+`cloud pull --tenant HTTPS_ORIGIN --app APP_ID --out NEW_DIRECTORY`, with
+`QLIK_CLOUD_TOKEN` supplied outside chat/command arguments. Check `cloud pull --help`
+first: this command is in development source builds and absent from v0.1.1.
+The parent must already exist without symlinks; choose a new private destination,
+such as under this project's ignored `.cache/qlik-cloud/`. Then retrieve offline.
+Ordinary local navigation does not require fetching Cloud source.
+
+Keep one app per root. A pull pins a saved script history ID, excluding unsaved
+editor changes. Last reload time does not prove that this script version reloaded;
+exported lines are not tab-local editor coordinates. This workflow retrieves no
+reload logs or Cloud lineage and makes no app changes.
 
 ## Budgets, diagnostics, and source evidence
 

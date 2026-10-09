@@ -18,6 +18,7 @@ The public module path is `github.com/noesiscarloslisboa/qlik-code-intel`.
 - `tree-sitter-qlik/queries/`: actual Tree-sitter queries, tested in Go.
 - `internal/qlik/`: AST extraction and deterministic filesystem scanning.
 - `internal/repomap/`: search, ranking, budgets, direct edges, source selection.
+- `internal/cloud/`: read-only saved-script import and local snapshot writing.
 - `internal/cli/`: command dispatch/flags and injected stdout/stderr.
 - `cmd/qlik-repomap/`: thin entry point with cancellation.
 - `skills/qlik-code-intelligence/`: optional assistant workflow and Codex UI metadata.
@@ -86,6 +87,26 @@ The public module path is `github.com/noesiscarloslisboa/qlik-code-intel`.
 - Rank a focused statement by its strongest match before structural importance.
   Preserve the matching symbol in compact summaries when possible. Context may
   retrieve direct neighbors only; symbol queries must not expand unrelated includes.
+
+## Cloud snapshots
+
+- Cloud access occurs only through an explicit `cloud pull`. Keep repository
+  retrieval offline and independent of credentials or an HTTP client.
+- Read `QLIK_CLOUD_TOKEN` from the environment. Never add tokens to command
+  arguments, manifests, error messages, logs, tests, or committed files.
+- Use authenticated HTTPS GETs with normal TLS verification, no redirects,
+  cancellation, and bounded response sizes/timeouts. Sanitize remote errors.
+- Select a saved script ID from history and fetch that ID, never the moving
+  `current` alias. Preserve exact decoded UTF-8 source and its hash/byte length.
+- Create a new snapshot directory under existing non-symlink parents; never
+  overwrite a snapshot. On failure, clean only files owned by that invocation.
+- Keep real tenant details, downloaded source, and live audit output in ignored
+  local storage. Use original HTTP fixtures for public regression tests.
+- Associate citations with manifest tenant/app/script identity and a matching
+  source hash. Keep one app per retrieval root. Last reload time is separate
+  metadata and cannot establish that the fetched source was reloaded.
+- Distinguish HTTPS fixture tests from live tenant acceptance. No app changes,
+  reloads, automatic login, Cloud lineage, or reload-log retrieval in this increment.
 
 ## Licensing
 

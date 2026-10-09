@@ -4,6 +4,9 @@ package cli
 
 import (
 	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"os"
 	"os/exec"
@@ -11,6 +14,9 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/noesiscarloslisboa/qlik-code-intel/internal/cloud"
 )
 
 func TestBuiltExecutableEndToEnd(t *testing.T) {
@@ -27,6 +33,86 @@ func TestBuiltExecutableEndToEnd(t *testing.T) {
 	if output, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("build: %v\n%s", err, output)
 	}
+	t.Run("cloud help and preflight", func(t *testing.T) {
+		destination := filepath.Join(cloudTempDir(t), "snapshot")
+		for _, tt := range []struct {
+			args []string
+			code int
+			want string
+		}{
+			{[]string{"--help"}, 0, "cloud"},
+			{[]string{"cloud", "pull", "--help"}, 0, "QLIK_CLOUD_TOKEN"},
+			{[]string{"cloud", "pull", "--bogus"}, 2, "flag provided but not defined"},
+			{[]string{"cloud", "pull"}, 2, "requires --tenant"},
+			{[]string{"cloud", "pull", "--tenant", "https://example.qlikcloud.com", "--app", "original-app", "--out", destination}, 1, "set QLIK_CLOUD_TOKEN"},
+		} {
+			command := exec.Command(binary, tt.args...)
+			// Never allow an ambient credential into a subprocess acceptance test.
+			for _, entry := range os.Environ() {
+				if key, _, _ := strings.Cut(entry, "="); !strings.EqualFold(key, "QLIK_CLOUD_TOKEN") {
+					command.Env = append(command.Env, entry)
+				}
+			}
+			command.Env = append(command.Env, "QLIK_CLOUD_TOKEN=")
+			var stdout, stderr bytes.Buffer
+			command.Stdout, command.Stderr = &stdout, &stderr
+			err := command.Run()
+			code := 0
+			if failure, ok := err.(*exec.ExitError); ok {
+				code = failure.ExitCode()
+			} else if err != nil {
+				t.Fatal(err)
+			}
+			text := stdout.String()
+			if tt.code != 0 {
+				text = stderr.String()
+				if stdout.Len() != 0 {
+					t.Fatalf("failure polluted stdout: %s", stdout.String())
+				}
+			} else if stderr.Len() != 0 {
+				t.Fatalf("help polluted stderr: %s", stderr.String())
+			}
+			if code != tt.code || !strings.Contains(text, tt.want) {
+				t.Fatalf("%v: code=%d stdout=%s stderr=%s", tt.args, code, stdout.String(), stderr.String())
+			}
+		}
+		if _, err := os.Lstat(destination); !os.IsNotExist(err) {
+			t.Fatalf("preflight wrote destination: %v", err)
+		}
+	})
+	t.Run("offline cloud snapshot", func(t *testing.T) {
+		source := []byte(cloudSource)
+		digest := sha256.Sum256(source)
+		destination := filepath.Join(cloudTempDir(t), "snapshot")
+		_, err := cloud.WriteSnapshot(context.Background(), destination, cloud.Snapshot{Source: source, Manifest: cloud.Manifest{
+			SchemaVersion: 1, Tenant: "https://example.qlikcloud.com", AppID: "original-app", ScriptID: "saved-1",
+			FetchedAt: time.Unix(1, 0).UTC(), SourceFile: "script.qvs", SourceSHA256: hex.EncodeToString(digest[:]), SourceBytes: len(source),
+		}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, tt := range []struct {
+			args []string
+			want string
+		}{
+			{[]string{"scan", "--json"}, `"name": "Revenue"`},
+			{[]string{"map", "--query", "Revenue", "--tokens", "512"}, "table Sales"},
+			{[]string{"find", "sales.qvd", "--kind", "qvd"}, "$(vRoot)sales.qvd"},
+			{[]string{"deps", "Summary", "--direction", "upstream"}, "table:Summary -> table:Sales [resident]"},
+			{[]string{"context", "Revenue", "--tokens", "512"}, "4 | LOAD RawAmount AS Revenue FROM [$(vRoot)sales.qvd] (qvd);"},
+		} {
+			command := exec.Command(binary, append(tt.args, "--root", destination)...)
+			var stderr bytes.Buffer
+			command.Stderr = &stderr
+			out, err := command.Output()
+			if err != nil || !strings.Contains(string(out), tt.want) || !strings.Contains(stderr.String(), "script.qvs:5:1 [unsupported]") {
+				t.Fatalf("%v: %v stdout=%s stderr=%s", tt.args, err, out, stderr.String())
+			}
+			if (tt.args[0] == "map" || tt.args[0] == "context") && len(out) > 512 {
+				t.Fatalf("budget overflow: %d", len(out))
+			}
+		}
+	})
 	repository := filepath.Join(root, "testdata/repository")
 	accuracy := filepath.Join(root, "testdata/accuracy")
 	qlikview := filepath.Join(root, "testdata/qlikview")

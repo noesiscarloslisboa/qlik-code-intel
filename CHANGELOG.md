@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- `cloud pull` imports a selected Qlik Cloud app's latest saved script, pinned to
+  the version ID returned by history, into a new local snapshot.
+- Exact UTF-8 source plus a manifest with app/version identity, timestamps,
+  SHA-256, and byte length; existing retrieval commands work offline on the snapshot.
+- Environment-based authentication, bounded HTTPS GET requests, cancellation,
+  sanitized errors, redirect rejection, and exclusive snapshot creation.
+- Original HTTPS API fixtures, snapshot failure tests, CLI/executable retrieval
+  checks, and Cloud provenance guidance in the companion skill. No new dependencies.
+
 ## 0.1.1 — 2026-10-09
 
 - Companion `qlik-code-intelligence` skill for focused repository maps, symbol
