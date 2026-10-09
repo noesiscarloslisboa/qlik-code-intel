@@ -1,9 +1,8 @@
 # Changelog
 
-## 0.1.0 — release candidate
+## 0.1.0 — 2026-10-09
 
-First end-to-end implementation of qlik-code-intelligence. Publication is pending;
-this entry describes the local candidate rather than a published tag.
+First source release of qlik-code-intelligence.
 
 - Original Tree-sitter grammar, generated parser, Go binding, and Aider-style
   definition/reference queries for the documented Qlik script subset.

@@ -20,8 +20,7 @@ Code and fixtures must be compatible with MIT licensing. Do not port implementat
 or tests from the GPL language-reference repository. Record new public language
 references in the README, and update third-party notices for bundled code.
 
-The Go module path is `github.com/noesiscarloslisboa/qlik-code-intel`. The first
-release remains a local candidate until the repository and tag are published.
+The Go module path is `github.com/noesiscarloslisboa/qlik-code-intel`.
 For release binaries, embed the version using:
 
 ```sh

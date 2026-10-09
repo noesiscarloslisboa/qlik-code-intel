@@ -14,6 +14,8 @@ MIT licensed. No Qlik installation, script execution, network access during use,
 Requires **Go 1.23+**, a C compiler (GCC or Clang), and **CGO enabled**. On macOS install the Xcode command-line tools; on Linux install your distribution's C build tools. The generated parser is included, so Node.js and Tree-sitter CLI are unnecessary for ordinary builds.
 
 ```sh
+git clone https://github.com/noesiscarloslisboa/qlik-code-intel.git
+cd qlik-code-intel
 go build -o bin/qlik-repomap ./cmd/qlik-repomap
 ./bin/qlik-repomap scan --root testdata/repository
 ./bin/qlik-repomap map --root testdata/repository --tokens 1500
@@ -198,13 +200,14 @@ uses an iterative stack for protected contexts and distinguishes literal name pr
 
 The CLI uses the standard library for flags and output. Its runtime module dependencies are the official `go-tree-sitter` binding and its `go-pointer` bridge. There is no SQLite dependency. The Go module path is `github.com/noesiscarloslisboa/qlik-code-intel`.
 
-### Release preparation
+### Release
 
-Version 0.1.0 is prepared as a local candidate. See the [changelog](CHANGELOG.md)
+Version 0.1.0 is the first source release. See the [changelog](CHANGELOG.md)
 and [source-release instructions](docs/releasing.md) for version embedding,
-verification, and publication steps. A public repository, tag, and release have
-not been created. The release review records executed checks and platform limits
-in [the readiness assessment](docs/validation/release-readiness-assessment.md).
+verification, and publication steps. Release notes and source archives are on
+[GitHub Releases](https://github.com/noesiscarloslisboa/qlik-code-intel/releases/tag/v0.1.0).
+The release review records executed checks and platform limits in
+[the readiness assessment](docs/validation/release-readiness-assessment.md).
 
 ### Retrieval benchmark
 

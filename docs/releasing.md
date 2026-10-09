@@ -1,9 +1,9 @@
-# Preparing a source release
+# Source release process
 
-The candidate version is `v0.1.0`. The selected GitHub repository/module path is
+The first release version is `v0.1.0`. The GitHub repository/module path is
 `github.com/noesiscarloslisboa/qlik-code-intel`; the project title remains
-qlik-code-intelligence. Repository creation, commits, tags, and public release
-publication are separate from preparing and verifying this local candidate.
+qlik-code-intelligence. Prepare and verify changes before tagging and publishing
+a new source release. Publication requires an explicit user request.
 
 ## Verify from source
 
@@ -53,9 +53,10 @@ still depends on using the same Go/C toolchains and target.
 CGO requires a target C toolchain when cross-compiling. Build and test separately
 on each supported target; setting `GOOS`/`GOARCH` alone does not establish runtime
 support. The [readiness assessment](validation/release-readiness-assessment.md)
-lists platforms and toolchains actually executed. Configured GitHub CI jobs are
-not evidence of completed remote runs. This candidate has no binary distribution
-automation or Windows validation claim. The npm grammar package remains private;
+lists platforms and toolchains actually executed and links the initial passing
+Ubuntu CI run. A configured job alone is not evidence of a completed run. This
+source release has no binary distribution automation or Windows validation claim.
+The npm grammar package remains private;
 source queries and the Go binding are included in the repository.
 
 ## Publication checklist
@@ -64,8 +65,8 @@ When publication is explicitly requested:
 
 1. Review the complete publishable file inventory and license notices. Keep private
    apps, recovered scripts, detailed manifests, and reports excluded.
-2. Create the repository at the selected namespace, commit the verified source,
-   and run the configured GitHub Actions checks on that commit.
+2. Commit and push the verified source to the repository, and run the configured
+   GitHub Actions checks on that commit.
 3. Confirm both minimum and current Go CI results, and update the readiness
    assessment with any newly executed targets.
 4. Change the changelog entry from candidate to released with the actual date,

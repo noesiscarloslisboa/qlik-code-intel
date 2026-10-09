@@ -3,8 +3,9 @@
 The local `v0.1.0` candidate has passed a code review and clean-source verification.
 Its Go module and imports use `github.com/noesiscarloslisboa/qlik-code-intel`, based
 on the requested repository name and the authenticated GitHub account.
-Dependency versions remain unchanged. No repository, commit, tag, or public
-release was created during this work.
+Dependency versions remain unchanged. The initial local review did not create a
+repository, commit, tag, or public release. The publication follow-up below
+records the subsequently authorized repository and CI verification.
 
 ## Review findings and repairs
 
@@ -34,8 +35,9 @@ Review and selected tests do not establish the absence of all defects.
 
 ## Clean-source verification
 
-There is no initial Git commit or configured remote. Instead of claiming a clean
-clone, the check copied Git's non-ignored source inventory into a fresh temporary
+At the time of the local review there was no Git commit or configured remote.
+Instead of claiming a clean clone, the check copied Git's non-ignored source
+inventory into a fresh temporary
 directory and verified every copied file's SHA-256. Private samples, built
 binaries, local caches, compiled parser libraries, and `node_modules` were absent.
 Go module/build caches and the npm cache started empty. The build used the included
@@ -72,15 +74,21 @@ its twelve retrieval checks and matches its previous complete aggregate report.
 Private source and detailed results stay ignored; this report includes aggregates
 only.
 
-The existing GitHub Actions workflow is configured for Ubuntu with Go 1.23.x and
-the current stable Go version. No remote CI run has occurred because the public
-repository has not been created. Linux and Windows execution were not tested
-locally; Windows distribution and cross-compilation are not claimed. A public
-release should follow [the publication checklist](../releasing.md), including CI
-on the actual published commit.
+## Publication follow-up
 
-The [candidate changelog](../../CHANGELOG.md) and [source-release instructions](../releasing.md)
-are prepared. Remaining work is repository creation/publication and verification
-of its remote CI run. The documented Qlik syntax limits remain; private recovered
-script completeness still needs authoritative export comparison. No Qlik app,
-script, include, SQL connection, or data source was executed.
+The user subsequently authorized publication. The public repository is
+[noesiscarloslisboa/qlik-code-intel](https://github.com/noesiscarloslisboa/qlik-code-intel).
+The initial source commit `ec4981a339f2d2f9aa6f8c652e38edddabf997ff` passed
+[GitHub Actions](https://github.com/noesiscarloslisboa/qlik-code-intel/actions/runs/37904884427)
+on Ubuntu with both Go 1.23.x and stable. Each job ran `npm ci` and `make check`,
+including generated-parser reproducibility, all twenty grammar cases, race-enabled
+Go tests, executable integration, formatting, vet, and build. The release process
+also gates the final tag on a successful CI run for its exact commit.
+
+Windows distribution and cross-compilation remain unverified. The
+[changelog](../../CHANGELOG.md) and [source-release instructions](../releasing.md)
+describe the first source release and its validation limits. The documented Qlik
+syntax limits remain; private recovered script completeness still needs
+authoritative export comparison. No Qlik app, script, include, SQL connection, or
+data source was executed. Private apps, recovered source, and detailed local
+reports were excluded from the published commit.
