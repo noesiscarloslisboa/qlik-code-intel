@@ -105,6 +105,9 @@ release; an older tag with no skill directory skips that archive entirely.
 These are unsigned binaries; code signing and notarization are not configured.
 Completed platform runs and validation results are recorded in the
 [native release assessment](validation/native-release-assessment.md).
+The Cloud/operation release's candidate, cache correction, native checks, and
+verified public downloads are recorded in the
+[v0.2.0 assessment](validation/v0.2.0-release-assessment.md).
 
 For a new release, commit the reviewed changelog and source and let ordinary CI
 pass. Before tagging, run native builds against the exact candidate commit:

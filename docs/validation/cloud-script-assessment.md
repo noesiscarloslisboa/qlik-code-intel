@@ -1,7 +1,8 @@
 # Qlik Cloud script import assessment
 
-Validated on 2026-10-09 with Go 1.27.2 on macOS arm64. This feature is in the
-development source and is not part of the published v0.1.1 release.
+Validated on 2026-10-09 with Go 1.27.2 on macOS arm64. This feature is included in
+the published v0.2.0 release; see the
+[release assessment](v0.2.0-release-assessment.md) for native checks and downloads.
 
 ## Implemented scope
 
