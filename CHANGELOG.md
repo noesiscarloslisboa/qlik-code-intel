@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.2.0 — 2026-10-09
+
 - Explicit RENAME FIELD(S)/TABLE(S) pairs and USING mapping-table references;
   DROP FIELD(S) with optional table scopes and DROP [MAPPING] TABLE(S).
 - TRACE text retains explicit variable uses without inventing message symbols.

@@ -114,8 +114,8 @@ Scanning is deterministic and case-insensitive for the `.qvs` extension. It skip
 
 ## Understand a Qlik Cloud app
 
-**Available in source builds; not included in the published v0.1.1 binaries.**
-Build the current checkout using the instructions above. Supply an API key or
+**Requires v0.2.0 or a current source build; absent from v0.1.1 binaries.**
+Download the matching release or build the checkout above. Supply an API key or
 OAuth access token through the `QLIK_CLOUD_TOKEN` environment variable, with
 permission to read the selected app and its script. The CLI does not obtain,
 refresh, or persist credentials. It accepts an HTTPS tenant origin, not an app URL.

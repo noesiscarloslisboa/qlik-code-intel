@@ -1,6 +1,7 @@
 # Release process
 
 The first release version is `v0.1.0`; `v0.1.1` adds the companion skill.
+`v0.2.0` adds saved Cloud script import and explicit rename/drop/TRACE facts.
 The GitHub repository/module path is
 `github.com/noesiscarloslisboa/qlik-code-intel`; the project title remains
 qlik-code-intelligence. Prepare and verify changes before tagging and publishing
@@ -35,7 +36,7 @@ Build a versioned candidate:
 
 ```sh
 go build -trimpath -buildvcs=false \
-  -ldflags '-X github.com/noesiscarloslisboa/qlik-code-intel/internal/cli.Version=v0.1.1' \
+  -ldflags '-X github.com/noesiscarloslisboa/qlik-code-intel/internal/cli.Version=v0.2.0' \
   -o bin/qlik-repomap ./cmd/qlik-repomap
 ./bin/qlik-repomap version
 ./bin/qlik-repomap scan --root testdata/repository --strict
@@ -45,7 +46,7 @@ go build -trimpath -buildvcs=false \
 ./bin/qlik-repomap context Revenue --root testdata/repository --tokens 1500
 ```
 
-Expect version `v0.1.1`, five indexed QVS files, 21 definitions, 26 references,
+Expect version `v0.2.0`, five indexed QVS files, 21 definitions, 26 references,
 nine direct dependency edges, and no baseline diagnostics. Check output paths and
 numbered source, and retain all unsupported-syntax diagnostics on stderr. Repeat
 the tests with the minimum supported Go toolchain before a release.
@@ -104,7 +105,7 @@ For a new release, commit the reviewed changelog and source and let ordinary CI
 pass. Before tagging, run native builds against the exact candidate commit:
 
 ```sh
-gh workflow run release.yml --ref main -f tag=v0.1.1 \
+gh workflow run release.yml --ref main -f tag=v0.2.0 \
   -f source-ref=FULL_CANDIDATE_COMMIT_SHA -f publish=false
 ```
 
@@ -112,8 +113,8 @@ Inspect the completed dry run and its artifacts, then create an annotated versio
 tag on that same successful candidate commit:
 
 ```sh
-git tag -a v0.1.1 FULL_CANDIDATE_COMMIT_SHA -m 'Release v0.1.1'
-git push origin v0.1.1
+git tag -a v0.2.0 FULL_CANDIDATE_COMMIT_SHA -m 'Release v0.2.0'
+git push origin v0.2.0
 ```
 
 Pushing `v*` tags triggers a build and publication. All builds use the exact
@@ -146,11 +147,11 @@ To verify downloads, compare the desired archive's hash with its line in
 
 ```sh
 # macOS
-shasum -a 256 qlik-repomap_v0.1.1_darwin_arm64.tar.gz
-shasum -a 256 qlik-code-intelligence-skill_v0.1.1.zip
+shasum -a 256 qlik-repomap_v0.2.0_darwin_arm64.tar.gz
+shasum -a 256 qlik-code-intelligence-skill_v0.2.0.zip
 ```
 
-In PowerShell use `Get-FileHash .\qlik-repomap_v0.1.1_windows_amd64.zip -Algorithm SHA256`.
+In PowerShell use `Get-FileHash .\qlik-repomap_v0.2.0_windows_amd64.zip -Algorithm SHA256`.
 Extract the skill ZIP and validate its entry point with the skill-creator validator
 when available. Run `scripts/check-skill.py --binary PATH_TO_EXTRACTED_BINARY
 --skill PATH_TO_EXTRACTED_SKILL_FOLDER` against the public fixtures. These checks

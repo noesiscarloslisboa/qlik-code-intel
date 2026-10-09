@@ -69,7 +69,7 @@ do not present it as the exact saved Cloud version or silently refresh it.
 When the task requests a Cloud import, use the user-selected tenant/app and
 `cloud pull --tenant HTTPS_ORIGIN --app APP_ID --out NEW_DIRECTORY`, with
 `QLIK_CLOUD_TOKEN` supplied outside chat/command arguments. Check `cloud pull --help`
-first: this command is in development source builds and absent from v0.1.1.
+first: this command requires v0.2.0 or a current source build and is absent from v0.1.1.
 The parent must already exist without symlinks; choose a new private destination,
 such as under this project's ignored `.cache/qlik-cloud/`. Then retrieve offline.
 Ordinary local navigation does not require fetching Cloud source.
@@ -106,6 +106,10 @@ case-sensitive. Preserve repeated definitions and their separate locations.
 - Keep variables, composed names, library paths, drive/UNC paths, and includes
   symbolic/literal. Do not evaluate expansions, equate basename matches, guess
   implicit JOIN/CONCATENATE targets, or flatten preceding LOAD stages.
+- From v0.2.0, explicit rename targets are source definitions and old/drop names
+  are references. Earlier facts remain indexed; these operations do not establish
+  a final runtime data model. USING maps are not evaluated. TRACE retains explicit
+  variable uses without executing its message or turning its words into symbols.
 - The CLI does not execute scripts/includes, open QVD data, or follow symlinks.
   Do not use this retrieval workflow to execute Qlik or resolve runtime paths.
   Unsupported syntax or incomplete exported scripts can limit the available facts.
