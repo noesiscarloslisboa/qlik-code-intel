@@ -256,8 +256,8 @@ LoAd "Field Name" AS [Output], 'a; b' AS Text, 1 AS Constant AUTOGENERATE 1;
 ==================
 Unsupported constructs preserve subsequent statements
 ==================
-TRACE 'hello; world';
-DROP TABLE Old;
+UNKNOWN 'hello; world';
+CUSTOMDROP TABLE Old;
 Result: LOAD ID FROM [data.qvd] (qvd);
 SET vAfter = yes;
 ---

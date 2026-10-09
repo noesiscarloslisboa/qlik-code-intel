@@ -78,7 +78,7 @@ func TestParseRecoveryAndNoPhantomSymbols(t *testing.T) {
 		name, source, want string
 		diagnostics        bool
 	}{
-		{"unsupported", "TRACE 'LOAD Fake; $(vFake)';\nReal: LOAD ID FROM [data.qvd] (qvd);", "Real", true},
+		{"unsupported", "UNKNOWN 'LOAD Fake; $(vFake)';\nReal: LOAD ID FROM [data.qvd] (qvd);", "Real", true},
 		{"malformed", "LET = ;\nReal: LOAD ID FROM [data.qvd] (qvd);", "Real", true},
 		{"comments", "// Fake: LOAD bogus; $(vFake)\n/* SET vFake = 1; */\nReal: LOAD ID AUTOGENERATE 1;", "Real", false},
 		{"implicit target", "JOIN LOAD ID RESIDENT Earlier;\nReal: LOAD ID AUTOGENERATE 1;", "Real", true},

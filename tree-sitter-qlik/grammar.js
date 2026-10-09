@@ -6,6 +6,10 @@ const functionCall = ($, expression) => seq(
   optional(choice(expression, $.wildcard)),
   repeat(seq(',', optional(choice(expression, $.wildcard)))), ')'
 );
+const traceQuoted = ($, open, close, content, escaped) => seq(open, repeat(choice(
+  alias($._trace_variable_reference, $.variable_reference), token.immediate(content),
+  ...(escaped ? [token.immediate(escaped)] : []), token.immediate('$')
+)), close);
 // Optional positional parameters retain their comma even when the value is omitted.
 const optionalCommaSuffix = (...rules) => {
   const [first, ...remaining] = rules;
@@ -26,7 +30,9 @@ module.exports = grammar({
   rules: {
     source_file: $ => repeat(choice(
       $.set_statement, $.let_statement, $.load_statement, $.store_statement,
-      $.include_statement, $.unsupported_control_statement, $.unsupported_statement,
+      $.include_statement, $.rename_field_statement, $.rename_table_statement,
+      $.drop_field_statement, $.drop_table_statement, $.trace_statement,
+      $.unsupported_control_statement, $.unsupported_statement,
       $.unsupported_literal_statement, ';'
     )),
     comment: _ => token(choice(
@@ -93,6 +99,47 @@ module.exports = grammar({
     include_statement: $ => prec.right(seq('$(', field('mode', $.include_mode), '=', field('source', $.include_path), ')', optional(';'))),
     include_mode: _ => choice(kw('INCLUDE'), kw('MUST_INCLUDE')),
     include_path: $ => repeat1(choice($.variable_reference, $.string, $.quoted_name, $.backtick_name, $.bracket_name, /[^)$'"`\[\]\r\n]+/)),
+
+    // Operations preserve explicit source names, without resolving a runtime
+    // data model. Single quotes are name delimiters in these statement contexts.
+    rename_field_statement: $ => seq(kw('RENAME'), choice(kw('FIELD'), kw('FIELDS')),
+      choice($.rename_using, commaSep1($.field_rename)), ';'),
+    rename_table_statement: $ => seq(kw('RENAME'), choice(kw('TABLE'), kw('TABLES')),
+      choice($.rename_using, commaSep1($.table_rename)), ';'),
+    rename_using: $ => seq(kw('USING'), field('table', $._operation_table_name)),
+    field_rename: $ => seq(field('old', $._operation_field_reference), kw('TO'),
+      field('new', choice($.field_name, alias($.string, $.field_name)))),
+    table_rename: $ => seq(field('old', $._operation_table_name), kw('TO'),
+      field('new', $._operation_table_name)),
+    drop_field_statement: $ => seq(kw('DROP'), choice(kw('FIELD'), kw('FIELDS')),
+      $.drop_field_list, optional($.drop_from), ';'),
+    drop_table_statement: $ => seq(kw('DROP'), optional(field('mapping', $.mapping_keyword)),
+      choice(kw('TABLE'), kw('TABLES')), $.drop_table_list, ';'),
+    mapping_keyword: _ => kw('MAPPING'),
+    drop_field_list: $ => commaSep1($._operation_field_reference),
+    drop_table_list: $ => commaSep1($._operation_table_name),
+    drop_from: $ => seq(kw('FROM'), $.drop_table_list),
+    _operation_field_reference: $ => choice(alias($.field_name, $.field_reference), alias($.string, $.field_reference)),
+    _operation_table_name: $ => choice($.table_name, alias($.string, $.table_name)),
+
+    trace_statement: $ => seq(kw('TRACE'), optional($.trace_value), ';'),
+    trace_value: $ => repeat1(choice($._trace_literal,
+      alias($._trace_variable_reference, $.variable_reference), $.trace_text, '$', '/')),
+    trace_text: _ => token(prec(-1, /[^;'"`$\[\]\/\s][^;'"`$\[\]\/\r\n]*/)),
+    // Macro arguments in TRACE are text, including function-like fragments.
+    // Retain nested explicit expansions without creating LOAD field nodes.
+    _trace_variable_reference: $ => seq('$(', optional('#'), field('name', $.variable_name),
+      optional(seq(',', optional($.trace_argument), repeat(seq(',', optional($.trace_argument))))), ')'),
+    trace_argument: $ => repeat1(choice($._trace_literal, $.trace_argument_group,
+      alias($._trace_variable_reference, $.variable_reference), $.trace_argument_text, '$', '/')),
+    trace_argument_group: $ => seq('(', optional($.trace_argument), repeat(seq(',', optional($.trace_argument))), ')'),
+    trace_argument_text: _ => token(prec(-1, /[^;'"`$\[\]()\/,\s][^;'"`$\[\]()\/,\r\n]*/)),
+    _trace_literal: $ => choice(alias($._trace_string, $.string), alias($._trace_quoted_name, $.quoted_name),
+      alias($._trace_bracket_name, $.bracket_name), alias($._trace_backtick_name, $.backtick_name)),
+    _trace_string: $ => traceQuoted($, "'", "'", /[^'$]+/, "''"),
+    _trace_quoted_name: $ => traceQuoted($, '"', '"', /[^"$]+/, '""'),
+    _trace_bracket_name: $ => traceQuoted($, '[', ']', /[^\]$]+/, '$$'),
+    _trace_backtick_name: $ => traceQuoted($, '`', '`', /[^`$]+/),
 
     _name: $ => choice($.identifier, $.bracket_name, $.quoted_name, $.backtick_name, $.expanded_name),
     expanded_name: $ => choice(

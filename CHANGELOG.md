@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Explicit RENAME FIELD(S)/TABLE(S) pairs and USING mapping-table references;
+  DROP FIELD(S) with optional table scopes and DROP [MAPPING] TABLE(S).
+- TRACE text retains explicit variable uses without inventing message symbols.
+  Rename/drop facts do not mutate earlier definitions or infer runtime lineage.
+- Additive supported `statements` JSON ranges and compact operation maps that
+  preserve focused names; variable context avoids expanding unrelated file source.
 - `cloud pull` imports a selected Qlik Cloud app's latest saved script, pinned to
   the version ID returned by history, into a new local snapshot.
 - Exact UTF-8 source plus a manifest with app/version identity, timestamps,

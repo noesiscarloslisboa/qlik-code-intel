@@ -111,7 +111,7 @@ func TestMachineReadableOutput(t *testing.T) {
 func TestDiagnosticsAndStrictMode(t *testing.T) {
 	t.Parallel()
 	root := t.TempDir()
-	if err := os.WriteFile(filepath.Join(root, "mixed.qvs"), []byte("TRACE 'unsupported';\nT: LOAD ID FROM [x.qvd] (qvd);"), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "mixed.qvs"), []byte("UNKNOWN 'unsupported';\nT: LOAD ID FROM [x.qvd] (qvd);"), 0644); err != nil {
 		t.Fatal(err)
 	}
 	for _, strict := range []bool{false, true} {

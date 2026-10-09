@@ -12,7 +12,10 @@ import (
 
 // Parse extracts syntax facts without evaluating scripts, variables, or includes.
 func Parse(ctx context.Context, filePath string, source []byte) (File, error) {
-	f := File{Path: filePath, Source: append([]byte(nil), source...), Symbols: []Symbol{}, Edges: []Edge{}, Diagnostics: []Diagnostic{}, Loads: []Load{}}
+	f := File{
+		Path: filePath, Source: append([]byte(nil), source...), Symbols: []Symbol{},
+		Edges: []Edge{}, Diagnostics: []Diagnostic{}, Loads: []Load{}, Statements: []Statement{},
+	}
 	if err := ctx.Err(); err != nil {
 		return f, err
 	}
@@ -63,6 +66,7 @@ func (x *extractor) statements(root *sitter.Node) {
 		if n.Kind() == "comment" {
 			continue
 		}
+		x.statement(n)
 		if n.Kind() == "load_statement" {
 			load := x.load(n)
 			if pending != nil {
@@ -93,6 +97,8 @@ func (x *extractor) statements(root *sitter.Node) {
 			x.store(n)
 		case "include_statement":
 			x.include(n)
+		case "rename_field_statement", "rename_table_statement", "drop_field_statement", "drop_table_statement", "trace_statement":
+			x.operation(n)
 		case "unsupported_statement":
 			x.diagnostic(n, "unsupported", "unsupported statement: "+x.text(n.ChildByFieldName("keyword")))
 			if child(n, "unterminated_unsupported_body") != nil {

@@ -1,0 +1,17 @@
+SET vBatch = 3;
+Stage: LOAD RawCode AS Code, RawPrice AS [Raw Price] FROM [lib://Input/items.qvd] (qvd);
+Names: MAPPING LOAD OldName, NewName FROM [names.csv] (txt);
+RENAME FIELDS [Raw Price] TO Price, Code TO [Public Code];
+RENAME TABLE Stage TO Published;
+RENAME FIELDS USING Names;
+RENAME TABLES USING [Table Names];
+DROP FIELDS Price, [Public Code] FROM Published, Archive;
+DROP FIELD 'Obsolete';
+DROP TABLES [Scratch Work], Archive;
+DROP MAPPING TABLE Names;
+RENAME FIELD [Cost_$(vBatch)] TO [Value_$(vBatch)];
+RENAME TABLE Batch_$(vBatch) TO [Archive $(vBatch)];
+DROP FIELD [Unused_$(vBatch)] FROM [Archive $(vBatch)];
+TRACE Finished $(vBatch): [unrelated.qvd] Sum(Price);
+TRACE 'LOAD Pretend; $(vBatch)' "literal; text";
+TRACE;

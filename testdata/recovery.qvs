@@ -1,5 +1,5 @@
-TRACE 'this unsupported construct has a ; in a string';
-DROP TABLE OldOrders;
+UNKNOWN 'this unsupported construct has a ; in a string';
+CUSTOMDROP TABLE OldOrders;
 Recovered:
 LOAD ItemID AS ID FROM [lib://Data/items.qvd] (qvd);
 SET vAfter = ok;

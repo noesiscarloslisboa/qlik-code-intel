@@ -17,7 +17,7 @@ import (
 	"github.com/noesiscarloslisboa/qlik-code-intel/internal/cloud"
 )
 
-const cloudSource = "\ufeff///$tab Main\r\nSET vRoot = lib://Warehouse/;\r\nSales:\r\nLOAD RawAmount AS Revenue FROM [$(vRoot)sales.qvd] (qvd);\r\nTRACE 'unsupported';\r\nSummary:\r\nLOAD Revenue RESIDENT Sales;\r\nSTORE Summary INTO [lib://Exports/summary.qvd] (qvd);"
+const cloudSource = "\ufeff///$tab Main\r\nSET vRoot = lib://Warehouse/;\r\nSales:\r\nLOAD RawAmount AS Revenue FROM [$(vRoot)sales.qvd] (qvd);\r\nUNKNOWN 'unsupported';\r\nSummary:\r\nLOAD Revenue RESIDENT Sales;\r\nSTORE Summary INTO [lib://Exports/summary.qvd] (qvd);"
 
 func TestCloudPullAndOfflineRetrieval(t *testing.T) {
 	requests := 0

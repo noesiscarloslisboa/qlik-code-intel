@@ -84,7 +84,11 @@ func Context(idx *qlik.Index, query string, tokens int) string {
 			continue
 		}
 		for _, endpoint := range []qlik.Entity{d.From, d.To} {
-			if endpoint.Kind == qlik.FileKind || endpoint.Kind == qlik.Include {
+			// A file-owned variable use identifies its statement, not every
+			// unrelated statement in the file. Primary matches already retain
+			// the original use range; include edges keep explicit path behavior.
+			fileSource := endpoint.Kind == qlik.FileKind || endpoint.Kind == qlik.Include
+			if fileSource && d.Kind != "variable" {
 				if f, ok := files[endpoint.Name]; ok && len(f.Source) > 0 {
 					matches = append(matches, Match{Symbol: qlik.Symbol{Location: qlik.Location{Path: f.Path, Line: 1}, StartLine: 1, StopLine: strings.Count(string(f.Source), "\n") + 1}})
 				}

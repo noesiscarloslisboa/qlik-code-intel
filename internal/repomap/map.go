@@ -16,6 +16,7 @@ type statementKey struct {
 type candidate struct {
 	key        statementKey
 	load       *qlik.Load
+	kind       string
 	symbols    []qlik.Symbol
 	edges      []qlik.Edge
 	score      int
@@ -97,6 +98,10 @@ func candidates(idx *qlik.Index) map[statementKey]*candidate {
 			byOffset[key.offset] = g
 			return g
 		}
+		for _, stmt := range f.Statements {
+			key := statementKey{stmt.Path, stmt.Line, stmt.EndLine, stmt.StartByte}
+			group(key, stmt.StopByte).kind = stmt.Kind
+		}
 		for _, load := range f.Loads {
 			key := statementKey{load.Path, load.Line, load.EndLine, load.StartByte}
 			group(key, load.StopByte).load = &load
@@ -117,6 +122,9 @@ func candidates(idx *qlik.Index) map[statementKey]*candidate {
 }
 
 func renderCandidate(g *candidate, compact bool, focus *qlik.Symbol) string {
+	if text, ok := renderOperation(g, compact, focus); ok {
+		return text
+	}
 	label := ""
 	fields, uses := []string{}, []string{}
 	for _, s := range g.symbols {

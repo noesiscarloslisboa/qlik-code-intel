@@ -7,3 +7,5 @@
 (hierarchy_prefix path_name: (field_name) @name.definition.field) @definition.field
 (hierarchy_prefix depth: (field_name) @name.definition.field) @definition.field
 (store_statement source: (data_source) @name.definition.source) @definition.source
+(field_rename new: (field_name) @name.definition.field) @definition.field
+(table_rename new: (table_name) @name.definition.table) @definition.table

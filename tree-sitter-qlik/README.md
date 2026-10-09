@@ -76,6 +76,12 @@ hierarchy_prefix: node_id, parent_id, node_name, parent_name, path_source,
 bundle_prefix: BUNDLE, optional INFO
 store_statement: fields, table, source
 include_statement: mode, source
+rename_field_statement / rename_table_statement: rename pairs or rename_using
+field_rename / table_rename: old, new
+rename_using: table
+drop_field_statement: drop_field_list, optional drop_from
+drop_table_statement: optional mapping keyword, drop_table_list
+trace_statement: optional trace_value (text, quoted text, explicit expansions)
 ```
 
 Names use `identifier`, `bracket_name`, `quoted_name`, `backtick_name`, or `expanded_name` children; variable/table names and field aliases also accept a pure `variable_reference`. An `expanded_name` preserves composed spelling such as `vMetric_$(vRun)_tail`, with `name_fragment` and nested `variable_reference` children. References inside assignment names are separate from their whole symbolic definitions. Backtick names support expansions, including in variable names, field expressions, data/include paths, SET values, and format options. Expansions remain `variable_reference` nodes even inside strings or quoted paths. LET-specific parsing retains the same public `function_call`, `binary_expression`, `unary_expression`, and `parenthesized_expression` containers. `src/node-types.json` is the complete machine-readable node schema.
@@ -94,6 +100,20 @@ The parser does not validate function arity or grouping semantics. BUNDLE with
 optional INFO precedes LOAD; its INLINE data has no field/source nodes beyond
 the opaque bracketed data container, while explicit dollar expansions remain
 variable references. No bundled file is opened.
+
+RENAME pairs use `field_reference` / `table_name` for old names and `field_name`
+/ `table_name` for new definitions. Queries preserve both roles. `rename_using`
+references its mapping table without generating names from its contents. DROP
+lists contain explicit references, including optional FROM table scopes and the
+MAPPING modifier. Single-quoted operation names normalize like other quoted
+names. The CLI does not assign field ownership or modify earlier definitions.
+TRACE has a text container rather than a field/variable expression: ordinary
+words and paths have no symbol captures, while explicit expansions are retained.
+TRACE macro arguments also stay text, including function-like fragments and
+nested expansions inside quotes; they do not create LOAD field references.
+Comments stay opaque even within a TRACE value. These statements break preceding
+LOAD adjacency. The additive `File.statements` index records their source ranges,
+including TRACE statements with no symbols, for explicit operation summaries.
 
 The stateless external scanner recognizes a name prefix immediately before `$(`,
 allowing the ordinary identifier token to retain literal dollars elsewhere.

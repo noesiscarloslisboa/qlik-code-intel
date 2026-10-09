@@ -67,6 +67,15 @@ type Load struct {
 	StopByte  uint   `json:"statement_end_byte"`
 }
 
+// Statement preserves a supported statement's kind and original source range.
+// Kinds describe syntax, not the state of a running Qlik data model.
+type Statement struct {
+	Location
+	Kind      string `json:"kind"`
+	StartByte uint   `json:"statement_start_byte"`
+	StopByte  uint   `json:"statement_end_byte"`
+}
+
 // File owns the exact source used to build the index. Source is omitted from JSON.
 type File struct {
 	Path        string       `json:"path"`
@@ -74,6 +83,7 @@ type File struct {
 	Edges       []Edge       `json:"edges"`
 	Diagnostics []Diagnostic `json:"diagnostics"`
 	Loads       []Load       `json:"loads"`
+	Statements  []Statement  `json:"statements"`
 	Source      []byte       `json:"-"`
 }
 

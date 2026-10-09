@@ -17,3 +17,8 @@
 (store_statement table: (table_name) @name.reference.table) @reference.table
 (from_clause source: (data_source) @name.reference.source) @reference.source
 (include_statement source: (include_path) @name.reference.include) @reference.include
+(field_rename new: (field_name) @name.definition.field) @definition.field
+(table_rename new: (table_name) @name.definition.table) @definition.table
+(table_rename old: (table_name) @name.reference.table) @reference.table
+(rename_using table: (table_name) @name.reference.table) @reference.table
+(drop_table_list (table_name) @name.reference.table) @reference.table

@@ -1,0 +1,200 @@
+==================
+Explicit rename/drop names and TRACE text
+==================
+SET vBatch = 3;
+Stage: LOAD RawCode AS Code, RawPrice AS [Raw Price] FROM [lib://Input/items.qvd] (qvd);
+Names: MAPPING LOAD OldName, NewName FROM [names.csv] (txt);
+RENAME FIELDS [Raw Price] TO Price, Code TO [Public Code];
+RENAME TABLE Stage TO Published;
+RENAME FIELDS USING Names;
+RENAME TABLES USING [Table Names];
+DROP FIELDS Price, [Public Code] FROM Published, Archive;
+DROP FIELD 'Obsolete';
+DROP TABLES [Scratch Work], Archive;
+DROP MAPPING TABLE Names;
+RENAME FIELD [Cost_$(vBatch)] TO [Value_$(vBatch)];
+RENAME TABLE Batch_$(vBatch) TO [Archive $(vBatch)];
+DROP FIELD [Unused_$(vBatch)] FROM [Archive $(vBatch)];
+TRACE Finished $(vBatch): [unrelated.qvd] Sum(Price);
+TRACE 'LOAD Pretend; $(vBatch)' "literal; text";
+TRACE;
+---
+
+(source_file
+  (set_statement
+    (variable_name
+      (identifier))
+    (set_value
+      (set_text)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (field_list
+      (load_field
+        (field_reference
+          (identifier))
+        (field_name
+          (identifier)))
+      (load_field
+        (field_reference
+          (identifier))
+        (field_name
+          (bracket_name))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec)))
+  (load_statement
+    (table_label
+      (table_name
+        (identifier)))
+    (load_prefix)
+    (field_list
+      (load_field
+        (field_reference
+          (identifier)))
+      (load_field
+        (field_reference
+          (identifier))))
+    (from_clause
+      (data_source
+        (bracket_name))
+      (format_spec)))
+  (rename_field_statement
+    (field_rename
+      (field_reference
+        (bracket_name))
+      (field_name
+        (identifier)))
+    (field_rename
+      (field_reference
+        (identifier))
+      (field_name
+        (bracket_name))))
+  (rename_table_statement
+    (table_rename
+      (table_name
+        (identifier))
+      (table_name
+        (identifier))))
+  (rename_field_statement
+    (rename_using
+      (table_name
+        (identifier))))
+  (rename_table_statement
+    (rename_using
+      (table_name
+        (bracket_name))))
+  (drop_field_statement
+    (drop_field_list
+      (field_reference
+        (identifier))
+      (field_reference
+        (bracket_name)))
+    (drop_from
+      (drop_table_list
+        (table_name
+          (identifier))
+        (table_name
+          (identifier)))))
+  (drop_field_statement
+    (drop_field_list
+      (field_reference)))
+  (drop_table_statement
+    (drop_table_list
+      (table_name
+        (bracket_name))
+      (table_name
+        (identifier))))
+  (drop_table_statement
+    (mapping_keyword)
+    (drop_table_list
+      (table_name
+        (identifier))))
+  (rename_field_statement
+    (field_rename
+      (field_reference
+        (bracket_name
+          (variable_reference
+            (variable_name
+              (identifier)))))
+      (field_name
+        (bracket_name
+          (variable_reference
+            (variable_name
+              (identifier)))))))
+  (rename_table_statement
+    (table_rename
+      (table_name
+        (expanded_name
+          (name_fragment)
+          (variable_reference
+            (variable_name
+              (identifier)))))
+      (table_name
+        (bracket_name
+          (variable_reference
+            (variable_name
+              (identifier)))))))
+  (drop_field_statement
+    (drop_field_list
+      (field_reference
+        (bracket_name
+          (variable_reference
+            (variable_name
+              (identifier))))))
+    (drop_from
+      (drop_table_list
+        (table_name
+          (bracket_name
+            (variable_reference
+              (variable_name
+                (identifier))))))))
+  (trace_statement
+    (trace_value
+      (trace_text)
+      (variable_reference
+        (variable_name
+          (identifier)))
+      (trace_text)
+      (bracket_name)
+      (trace_text)))
+  (trace_statement
+    (trace_value
+      (string
+        (variable_reference
+          (variable_name
+            (identifier))))
+      (quoted_name)))
+  (trace_statement))
+
+==================
+TRACE macro arguments are text with explicit nested expansions
+==================
+TRACE $(vMessage, Sum(Unrelated), [$(vInner)], '$(vQuoted, Literal)');
+---
+
+(source_file
+  (trace_statement
+    (trace_value
+      (variable_reference
+        (variable_name
+          (identifier))
+        (trace_argument
+          (trace_argument_text)
+          (trace_argument_group
+            (trace_argument
+              (trace_argument_text))))
+        (trace_argument
+          (bracket_name
+            (variable_reference
+              (variable_name
+                (identifier)))))
+        (trace_argument
+          (string
+            (variable_reference
+              (variable_name
+                (identifier))
+              (trace_argument
+                (trace_argument_text)))))))))

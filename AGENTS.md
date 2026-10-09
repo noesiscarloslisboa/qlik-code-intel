@@ -28,6 +28,13 @@ The public module path is `github.com/noesiscarloslisboa/qlik-code-intel`.
 
 - Extract symbols from the syntax tree, not regular-expression scans over source.
 - Keep input field references separate from output aliases. Functions are not fields.
+- RENAME old names are references and explicit new names are definitions; USING
+  references only its mapping table. DROP names/scopes are references. Never apply
+  these operations to earlier facts, infer a field owner, resolve a mapping, or
+  fabricate rename/drop lineage edges. Retain supported statement ranges.
+- TRACE is text with explicit expansion references, not a field expression.
+  Message words/paths and comments must create no symbols. File-owned variable
+  dependencies must not expand whole files during symbol context retrieval.
 - HIERARCHY inputs (`node_id`, `parent_id`, `node_name`, `path_source`) are field
   references. Explicit `parent_name`, `path_name`, and `depth` names are field
   definitions owned by the LOAD. Never fabricate numbered levels or relationships

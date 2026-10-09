@@ -7,3 +7,6 @@
 (store_statement table: (table_name) @name.reference.table) @reference.table
 (from_clause source: (data_source) @name.reference.source) @reference.source
 (include_statement source: (include_path) @name.reference.include) @reference.include
+(table_rename old: (table_name) @name.reference.table) @reference.table
+(rename_using table: (table_name) @name.reference.table) @reference.table
+(drop_table_list (table_name) @name.reference.table) @reference.table

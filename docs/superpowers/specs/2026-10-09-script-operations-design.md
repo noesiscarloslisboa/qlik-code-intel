@@ -4,6 +4,10 @@ Status: scope approved by the user's “go” on 2026-10-09 after the proposal t
 add syntax support and explicit names without simulating execution. Execution
 is inline in the existing checkout. No additional permission gate is needed.
 
+Implemented and verified on the same date; see the
+[assessment](../../validation/script-operations-assessment.md) for executed
+checks, private aggregate results, and remaining limitations.
+
 ## Contract
 
 Recognize case-insensitive RENAME FIELD(S)/TABLE(S), with explicit comma-separated

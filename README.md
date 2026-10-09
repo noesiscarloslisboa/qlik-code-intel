@@ -100,11 +100,12 @@ Context prefers exact symbol definitions, references, and definitions of direct 
 
 ### Index and locations
 
-The JSON index contains `root` and `files`. Each file contains `path`, `symbols`, `edges`, `loads`, and `diagnostics`:
+The JSON index contains `root` and `files`. Each file contains `path`, `symbols`, `edges`, `loads`, `statements`, and `diagnostics`:
 
 - Symbols carry `kind`, `role`, normalized `name`, optional `owner`, path, one-based line/byte column, end line, and statement line/byte ranges. Enclosing brackets/quotes are removed; dollar expansions stay literal.
 - Edges carry typed `from` and `to` endpoints, relationship kind, statement start byte, and the source location where the relationship occurs. Byte offsets are zero-based with exclusive statement end offsets.
 - LOAD records carry `owner`, `anonymous`, the statement location, and statement byte range. Wildcard-only stages retain ranges without fabricated table or field definitions. Anonymous owners use `@path:line:column` identities.
+- Statement records carry the supported syntax `kind`, location, and statement byte range, including symbol-free TRACE statements. Kinds omit the `_statement` suffix; `drop_mapping_table` distinguishes mapping-table drops. Malformed/unsupported statements retain diagnostics instead of a supported statement record.
 - Diagnostics carry a code, message, and source location.
 
 Edges point **consumer → upstream input**. `Daily Sales → Orders` means `RESIDENT Orders`. For STORE, `lib://Exports/daily_sales.qvd → Daily Sales` means that output is produced from the table. `file → include` preserves the literal include target. Variable-use edges point to the variable. A `preceding` edge points to the next LOAD stage, with its location on that input stage and `statement_start_byte` on the consuming statement. These are syntactic facts, not evaluated lineage.
@@ -192,6 +193,9 @@ The importer still issues only GET requests, even when the account can edit.
 | Drive, UNC, relative, wildcard, and `lib://` paths | Literal data sources; no filesystem or library resolution |
 | File-format options such as `table is Sheet1$` | Literal dollar suffixes and genuine variable expansions remain distinct |
 | `STORE [fields FROM] Table INTO source` | Output-source definition, table reference, and output → table edge |
+| `RENAME FIELD(S)` / `RENAME TABLE(S)` | Explicit old names are references and new names are definitions; comma-separated pairs retain separate occurrences; `USING` references only the mapping table |
+| `DROP FIELD(S) [FROM tables]`, `DROP [MAPPING] TABLE(S)` | Explicit field/table references, including lists and optional field scopes; previous definitions remain indexed |
+| `TRACE text` | Text has no field/table/source symbols; explicit dollar expansions remain variable references; no log output is executed |
 | `$(Include=...)`, `$(Must_Include=...)` | Literal include references and distinct optional/required edge kinds |
 | `JOIN`, `LEFT/RIGHT/INNER/OUTER JOIN`, `CONCATENATE` | Explicit target references; source inputs attach to the named target |
 | `NOCONCATENATE`, `MAPPING` | Recognized LOAD prefixes |
@@ -203,6 +207,18 @@ The importer still issues only GET requests, even when the account can edit.
 | `//`, `/* ... */`, `REM ...;` | Comments; no symbols extracted from them |
 
 The grammar has meaningful `variable_name`, `variable_reference`, `bare_variable_reference`, `table_name`, `table_label`, `load_field`, `field_name`, `field_reference`, `data_source`, and `include_path` nodes. See [the grammar README](tree-sitter-qlik/README.md) for binding/query details.
+
+Rename and drop summaries describe source operations, without applying them to
+a running data model. Field renames have no inferred table owner. No rename/drop
+lineage edges or mapped output names are invented, and later literal RESIDENT
+names are not rewritten. Variable uses in these operations and TRACE contribute
+file → variable edges; a variable context query retains its matching statements
+without expanding unrelated source from the containing file. See Qlik's
+[rename](https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Scripting/ScriptRegularStatements/rename-field.htm),
+[drop](https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Scripting/ScriptRegularStatements/drop-field.htm), and
+[TRACE](https://help.qlik.com/en-US/cloud-services/Subsystems/Hub/Content/Sense_Hub/Scripting/ScriptRegularStatements/Trace.htm)
+syntax references. The original operation examples are in
+[operations.qvs](testdata/accuracy/operations.qvs).
 
 Preceding LOADs retain separate scopes and source locations:
 

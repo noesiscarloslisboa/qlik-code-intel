@@ -94,6 +94,33 @@ Source, manifests, detailed audit output, hashes, private queries, and tenant
 metadata remain under the ignored `.cache/qlik-cloud/` directory; this report
 contains only aggregate results.
 
+### Parser follow-up on the same snapshot
+
+The 2026-10-09 operation-support increment recognized all 60 targeted statements:
+18 field renames, five table renames, 18 field drops, four table drops, and 15
+TRACE statements. Diagnostics fell from 72 to 12 (six `unsupported` and six
+`unsupported-control`). Strict scan still returns 1, preserving partial-coverage
+reporting. No new source was fetched or modified for this comparison.
+
+Every baseline symbol occurrence, edge, and LOAD range remained present. The
+updated index contains 221 symbol occurrences: 43 variable definitions, 20
+variable references, 17 table definitions, 54 field definitions, 66 field
+references, 13 table references, and eight source references. It records 32
+direct edges, 12 LOADs, and 115 supported statement ranges. New table/field
+definitions here include explicit rename targets; these are source facts, not
+assertions about a final runtime data model. The 11 additional edges are explicit
+variable uses, with no invented rename/drop lineage.
+
+All original 24 private retrieval checks still passed. Seven additional
+source-reviewed questions cover explicit renamed definitions, focused maps,
+numbered context, and a TRACE variable reference. The expanded oracle passed
+all 39 checks across 21 questions at the same byte budgets. Three additional
+source checks verified drop references and a TRACE expansion at their original
+locations. All indexed symbol/statement ranges stayed within the source bounds.
+A general map used 2,042 bytes within a 2,048-byte budget. Detailed artifacts and
+new private queries remain ignored. These checks remain selected examples, not
+exhaustive accuracy or runtime validation.
+
 Qlik documents that shared-space `Owner` and `Can manage` roles do not grant
 editing access to other users' load scripts; `Can edit data in applications`
 provides that capability. This distinction informed the access troubleshooting.

@@ -199,7 +199,7 @@ func TestAccuracyPrecedingBoundaries(t *testing.T) {
 	for _, tt := range []struct{ name, middle, next string }{
 		{"assignment", "SET v = 1;\n", "LOAD ID FROM [x.qvd] (qvd);"},
 		{"include", "$(Include=config.qvs);\n", "LOAD ID FROM [x.qvd] (qvd);"},
-		{"unsupported", "TRACE 'boundary';\n", "LOAD ID FROM [x.qvd] (qvd);"},
+		{"unsupported", "UNKNOWN 'boundary';\n", "LOAD ID FROM [x.qvd] (qvd);"},
 		{"parse error", "LET = ;\n", "LOAD ID FROM [x.qvd] (qvd);"},
 		{"control", "IF 1 = 1 THEN\n", "LOAD ID FROM [x.qvd] (qvd);\nEND IF"},
 		{"new label", "", "Second: LOAD ID FROM [x.qvd] (qvd);"},

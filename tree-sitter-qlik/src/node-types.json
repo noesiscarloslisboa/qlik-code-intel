@@ -319,6 +319,96 @@
     }
   },
   {
+    "type": "drop_field_list",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "field_reference",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "drop_field_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "drop_field_list",
+          "named": true
+        },
+        {
+          "type": "drop_from",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "drop_from",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "drop_table_list",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "drop_table_list",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "table_name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "drop_table_statement",
+    "named": true,
+    "fields": {
+      "mapping": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "mapping_keyword",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "drop_table_list",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "expanded_name",
     "named": true,
     "fields": {},
@@ -396,8 +486,8 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
-      "required": true,
+      "multiple": true,
+      "required": false,
       "types": [
         {
           "type": "backtick_name",
@@ -418,8 +508,38 @@
         {
           "type": "quoted_name",
           "named": true
+        },
+        {
+          "type": "variable_reference",
+          "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "field_rename",
+    "named": true,
+    "fields": {
+      "new": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "field_name",
+            "named": true
+          }
+        ]
+      },
+      "old": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "field_reference",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -1016,6 +1136,11 @@
     }
   },
   {
+    "type": "mapping_keyword",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "order_by_clause",
     "named": true,
     "fields": {},
@@ -1090,6 +1215,60 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "rename_field_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "field_rename",
+          "named": true
+        },
+        {
+          "type": "rename_using",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "rename_table_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "rename_using",
+          "named": true
+        },
+        {
+          "type": "table_rename",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "rename_using",
+    "named": true,
+    "fields": {
+      "table": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "table_name",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -1175,6 +1354,14 @@
       "required": false,
       "types": [
         {
+          "type": "drop_field_statement",
+          "named": true
+        },
+        {
+          "type": "drop_table_statement",
+          "named": true
+        },
+        {
           "type": "include_statement",
           "named": true
         },
@@ -1187,11 +1374,23 @@
           "named": true
         },
         {
+          "type": "rename_field_statement",
+          "named": true
+        },
+        {
+          "type": "rename_table_statement",
+          "named": true
+        },
+        {
           "type": "set_statement",
           "named": true
         },
         {
           "type": "store_statement",
+          "named": true
+        },
+        {
+          "type": "trace_statement",
           "named": true
         },
         {
@@ -1291,8 +1490,8 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
-      "required": true,
+      "multiple": true,
+      "required": false,
       "types": [
         {
           "type": "backtick_name",
@@ -1312,6 +1511,136 @@
         },
         {
           "type": "quoted_name",
+          "named": true
+        },
+        {
+          "type": "variable_reference",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "table_rename",
+    "named": true,
+    "fields": {
+      "new": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "table_name",
+            "named": true
+          }
+        ]
+      },
+      "old": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "table_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "trace_argument",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "backtick_name",
+          "named": true
+        },
+        {
+          "type": "bracket_name",
+          "named": true
+        },
+        {
+          "type": "quoted_name",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        },
+        {
+          "type": "trace_argument_group",
+          "named": true
+        },
+        {
+          "type": "trace_argument_text",
+          "named": true
+        },
+        {
+          "type": "variable_reference",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "trace_argument_group",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "trace_argument",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "trace_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "trace_value",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "trace_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "backtick_name",
+          "named": true
+        },
+        {
+          "type": "bracket_name",
+          "named": true
+        },
+        {
+          "type": "quoted_name",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        },
+        {
+          "type": "trace_text",
           "named": true
         },
         {
@@ -1513,6 +1842,10 @@
         },
         {
           "type": "string",
+          "named": true
+        },
+        {
+          "type": "trace_argument",
           "named": true
         },
         {
@@ -1760,6 +2093,14 @@
   },
   {
     "type": "set_text",
+    "named": true
+  },
+  {
+    "type": "trace_argument_text",
+    "named": true
+  },
+  {
+    "type": "trace_text",
     "named": true
   },
   {
