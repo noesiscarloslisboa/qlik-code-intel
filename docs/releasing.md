@@ -84,6 +84,8 @@ requested version, pass the strict five-file baseline, support all retrieval
 commands, and pass all forty selected public retrieval checks. The workflow
 publishes three archives and `SHA256SUMS` only after every required job succeeds.
 These are unsigned binaries; code signing and notarization are not configured.
+Completed platform runs and validation results are recorded in the
+[native release assessment](validation/native-release-assessment.md).
 
 For a new release, commit the reviewed changelog and source, let ordinary CI pass,
 then push an annotated version tag on that commit:

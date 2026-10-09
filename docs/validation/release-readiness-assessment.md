@@ -85,7 +85,11 @@ including generated-parser reproducibility, all twenty grammar cases, race-enabl
 Go tests, executable integration, formatting, vet, and build. The release process
 also gates the final tag on a successful CI run for its exact commit.
 
-Windows distribution and cross-compilation remain unverified. The
+At the source-release review, Windows distribution and cross-compilation were
+unverified. The subsequent
+[native binary assessment](native-release-assessment.md) records successful
+macOS arm64/amd64 and Windows amd64 builds and publication. Cross-compilation
+remains unverified. The
 [changelog](../../CHANGELOG.md) and [source-release instructions](../releasing.md)
 describe the first source release and its validation limits. The documented Qlik
 syntax limits remain; private recovered script completeness still needs

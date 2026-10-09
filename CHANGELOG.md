@@ -18,6 +18,11 @@ First source release of qlik-code-intelligence.
 - Invalid UTF-8 scripts fail before indexing. Output failures, including command
   help, return a runtime error instead of a success status.
 
-This version requires CGO and a C compiler. It does not execute Qlik, resolve
+Binary distribution was added on 2026-10-09 for macOS Apple Silicon, macOS Intel,
+and Windows x64, with native GitHub Actions tests, license notices, and SHA-256
+checksums. All binaries use the original v0.1.0 source commit. Future version
+tags trigger the release workflow; manual dispatch supports existing-tag builds.
+
+Building from source requires CGO and a C compiler. It does not execute Qlik, resolve
 variable values, reload apps, or implement advanced lineage, MCP, or a GUI.
 Authoritative export comparison for the private recovered samples remains pending.
