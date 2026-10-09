@@ -2,6 +2,7 @@
 
 import hashlib
 import importlib.util
+import json
 from pathlib import Path
 import tarfile
 import tempfile
@@ -52,14 +53,17 @@ class ReleaseTests(unittest.TestCase):
                         self.assertEqual(handle.getmember("qlik-repomap").mode, 0o755)
 
     def test_checksums_reject_tampering_missing_and_extra_files(self):
-        for problem in ["tampered", "missing", "extra", None]:
-            with self.subTest(problem=problem), tempfile.TemporaryDirectory() as directory:
+        for with_skill, problem in [(skill, problem) for skill in [False, True]
+                                    for problem in ["tampered", "missing", "extra", None]]:
+            with self.subTest(with_skill=with_skill, problem=problem), tempfile.TemporaryDirectory() as directory:
                 output = Path(directory)
                 expected = []
-                for target in release.TARGETS:
-                    name = release.filename("v1.2.3", target)
-                    (output / name).write_bytes(target.encode())
-                    digest = hashlib.sha256(target.encode()).hexdigest()
+                names = [release.filename("v1.2.3", target) for target in release.TARGETS]
+                if with_skill:
+                    names.append(release.skill_filename("v1.2.3"))
+                for name in names:
+                    (output / name).write_bytes(name.encode())
+                    digest = hashlib.sha256(name.encode()).hexdigest()
                     line = f"{digest}  {name}\n"
                     (output / f"{name}.sha256").write_text(line)
                     expected.append(line)
@@ -71,12 +75,52 @@ class ReleaseTests(unittest.TestCase):
                     (output / "private.qvw").write_bytes(b"must not publish")
                 if problem:
                     with self.assertRaises(ValueError):
-                        release.checksums(output, "v1.2.3")
+                        release.checksums(output, "v1.2.3", with_skill=with_skill)
                     self.assertFalse((output / "SHA256SUMS").exists())
                 else:
-                    release.checksums(output, "v1.2.3")
+                    release.checksums(output, "v1.2.3", with_skill=with_skill)
                     self.assertEqual((output / "SHA256SUMS").read_text(), "".join(sorted(expected, key=lambda s: s[66:])))
-                    self.assertEqual(len(list(output.iterdir())), 4)
+                    self.assertEqual(len(list(output.iterdir())), len(names) + 1)
+
+    def test_skill_archive_has_installable_folder_license_and_source_metadata(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            skill = root / "skills/qlik-code-intelligence"
+            (skill / "agents").mkdir(parents=True)
+            (skill / "SKILL.md").write_text("original instructions")
+            (skill / "agents/openai.yaml").write_text("interface: {}")
+            (root / "LICENSE").write_text("project license")
+            (skill / "private.qvw").write_text("must not ship")
+            output = root / "dist"
+            with patch.object(release, "run", return_value="a" * 40):
+                self.assertTrue(release.package_skill(root, output, "v1.2.3"))
+            path = output / release.skill_filename("v1.2.3")
+            with zipfile.ZipFile(path) as archive:
+                prefix = "qlik-code-intelligence/"
+                self.assertEqual(set(archive.namelist()), {prefix + name for name in
+                                 ["SKILL.md", "agents/openai.yaml", "LICENSE", "build-info.json"]})
+                self.assertEqual(archive.read(prefix + "SKILL.md"), b"original instructions")
+                self.assertEqual(archive.read(prefix + "LICENSE"), b"project license")
+                metadata = json.loads(archive.read(prefix + "build-info.json"))
+                self.assertEqual(metadata["version"], "v1.2.3")
+                self.assertEqual(metadata["commit"], "a" * 40)
+                self.assertEqual(metadata["cli_min_version"], "v0.1.0")
+            self.assertEqual((output / (path.name + ".sha256")).read_text(),
+                             hashlib.sha256(path.read_bytes()).hexdigest() + "  " + path.name + "\n")
+
+    def test_old_source_without_skill_is_skipped(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.assertFalse(release.package_skill(root, root / "dist", "v0.1.0"))
+            self.assertFalse((root / "dist").exists())
+
+    def test_incomplete_skill_fails_before_writing_archive(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "skills/qlik-code-intelligence").mkdir(parents=True)
+            with self.assertRaises(ValueError):
+                release.package_skill(root, root / "dist", "v1.2.3")
+            self.assertFalse((root / "dist").exists())
 
 
 if __name__ == "__main__":

@@ -20,6 +20,7 @@ The public module path is `github.com/noesiscarloslisboa/qlik-code-intel`.
 - `internal/repomap/`: search, ranking, budgets, direct edges, source selection.
 - `internal/cli/`: command dispatch/flags and injected stdout/stderr.
 - `cmd/qlik-repomap/`: thin entry point with cancellation.
+- `skills/qlik-code-intelligence/`: optional assistant workflow and Codex UI metadata.
 - `testdata/`: independently authored QVS examples; `real_samples/` is private and ignored.
 
 ## Accuracy rules
@@ -154,7 +155,7 @@ source intact and never move a published tag to add automation. The v0.1.0
 Windows backfill uses a test-only Go overlay for its missing `.exe` suffix.
 
 Packaging uses `scripts/release.py` and Python 3.12+ stdlib. Archives use an
-explicit binary/license/metadata allowlist; never package repository trees,
+explicit binary/license/metadata or skill/license/metadata allowlist; never package repository trees,
 module caches, fixtures, or private samples. Windows must use the MSYS2 action's
 reported installation path, check DLL imports, retain the compiler runtime
 notices, and test the executable without compiler paths.
@@ -163,3 +164,11 @@ For release automation changes, run `python3 -m unittest discover -s scripts -p
 'test_*.py'`, lint the workflows with actionlint when available, and run a native
 workflow dry run before publication. Verify public archive checksums afterward.
 See `docs/releasing.md` for commands and the recorded validation evidence.
+
+For companion skill changes, run `python3 scripts/check-skill.py --binary
+bin/qlik-repomap`. Keep examples executable against original fixtures and verify
+source locations, roles, directions, diagnostics, and budgets. The portable skill
+must require an existing CLI and must not execute Qlik, silently install software,
+or claim full runtime lineage. Command checks do not establish model behavior or
+automatic selection across assistant products. Use `source-ref` only for a
+non-publishing pre-tag dry run, then tag that exact verified commit.

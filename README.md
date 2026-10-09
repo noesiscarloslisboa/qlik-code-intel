@@ -175,6 +175,39 @@ Empty LET values and omitted call arguments are accepted as source forms without
 
 ## Aider and other assistants
 
+### Companion skill
+
+The optional [qlik-code-intelligence skill](skills/qlik-code-intelligence/SKILL.md)
+guides an assistant through focused maps, symbol lookup, QVD producers/consumers,
+and numbered source retrieval. It explains diagnostic handling, byte budgets,
+and the limits of direct syntactic dependencies. It requires `qlik-repomap`
+v0.1.0 or later on `PATH` (or an explicitly selected executable).
+
+Download `qlik-code-intelligence-skill_v0.1.1.zip` from the
+[v0.1.1 release](https://github.com/noesiscarloslisboa/qlik-code-intel/releases/tag/v0.1.1)
+and verify its entry in `SHA256SUMS`. Extract its `qlik-code-intelligence` folder
+into your assistant's configured skills directory. For Codex, the default is
+`~/.codex/skills/`; restart Codex after installing. Alternatively, ask Codex's
+skill-installer to install from this versioned repository URL:
+
+```text
+Install the skill from https://github.com/noesiscarloslisboa/qlik-code-intel/tree/v0.1.1/skills/qlik-code-intelligence
+```
+
+Then try prompts such as:
+
+- “Use $qlik-code-intelligence to explain how Revenue is loaded in this repository.”
+- “Find the producer and consumers of orders.qvd, citing script paths and lines.”
+- “Retrieve the source needed to change Daily Sales, within a small context budget.”
+
+The skill uses the [Agent Skills format](https://agentskills.io/specification)
+and includes Codex UI metadata. Its command examples are tested against extracted
+release binaries on macOS and Windows. Automatic selection and model behavior
+have not been evaluated across assistant products. Installation does not bundle
+the CLI or execute Qlik scripts.
+
+### Query integration
+
 The queries under `tree-sitter-qlik/queries/` use Aider's repository-map conventions:
 
 ```scheme
@@ -196,6 +229,9 @@ make build
 make test
 make integration
 make vet
+
+# Validate the companion skill's executable examples (Python stdlib).
+python3 scripts/check-skill.py --binary bin/qlik-repomap
 
 # Grammar work also requires Node.js/npm and downloads pinned Tree-sitter 0.25.10.
 cd tree-sitter-qlik
@@ -219,10 +255,10 @@ The CLI uses the standard library for flags and output. Its runtime module depen
 
 ### Release
 
-Version 0.1.0 is the first source release. See the [changelog](CHANGELOG.md)
-and [source-release instructions](docs/releasing.md) for version embedding,
+Version 0.1.1 adds the companion skill and its portable archive. See the [changelog](CHANGELOG.md)
+and [release instructions](docs/releasing.md) for version embedding,
 verification, and publication steps. Release notes and source archives are on
-[GitHub Releases](https://github.com/noesiscarloslisboa/qlik-code-intel/releases/tag/v0.1.0).
+[GitHub Releases](https://github.com/noesiscarloslisboa/qlik-code-intel/releases/tag/v0.1.1).
 The release review records executed checks and platform limits in
 [the readiness assessment](docs/validation/release-readiness-assessment.md).
 
@@ -301,6 +337,7 @@ internal/cli/             commands, flags, output, executable integration test
 internal/qlik/            AST extraction, source index, repository scanning
 internal/repomap/         ranking, maps, search, dependencies, source context
 tree-sitter-qlik/         grammar, generated parser, external scanner, binding, queries
+skills/qlik-code-intelligence/  companion assistant instructions and Codex UI metadata
 testdata/                 original QVS examples; ignored private samples stay local
 docs/superpowers/         milestone design and implementation plan
 ```

@@ -1,6 +1,7 @@
 # Release process
 
-The first release version is `v0.1.0`. The GitHub repository/module path is
+The first release version is `v0.1.0`; `v0.1.1` adds the companion skill.
+The GitHub repository/module path is
 `github.com/noesiscarloslisboa/qlik-code-intel`; the project title remains
 qlik-code-intelligence. Prepare and verify changes before tagging and publishing
 a new source release. Publication requires an explicit user request.
@@ -26,13 +27,15 @@ npm ci
 cd ..
 make check
 make benchmark
+python3 -m unittest discover -s scripts -p 'test_*.py'
+python3 scripts/check-skill.py --binary bin/qlik-repomap
 ```
 
 Build a versioned candidate:
 
 ```sh
 go build -trimpath -buildvcs=false \
-  -ldflags '-X github.com/noesiscarloslisboa/qlik-code-intel/internal/cli.Version=v0.1.0' \
+  -ldflags '-X github.com/noesiscarloslisboa/qlik-code-intel/internal/cli.Version=v0.1.1' \
   -o bin/qlik-repomap ./cmd/qlik-repomap
 ./bin/qlik-repomap version
 ./bin/qlik-repomap scan --root testdata/repository --strict
@@ -42,7 +45,7 @@ go build -trimpath -buildvcs=false \
 ./bin/qlik-repomap context Revenue --root testdata/repository --tokens 1500
 ```
 
-Expect version `v0.1.0`, five indexed QVS files, 21 definitions, 26 references,
+Expect version `v0.1.1`, five indexed QVS files, 21 definitions, 26 references,
 nine direct dependency edges, and no baseline diagnostics. Check output paths and
 numbered source, and retain all unsupported-syntax diagnostics on stderr. Repeat
 the tests with the minimum supported Go toolchain before a release.
@@ -55,7 +58,8 @@ on each supported target; setting `GOOS`/`GOARCH` alone does not establish runti
 support. The [readiness assessment](validation/release-readiness-assessment.md)
 lists platforms and toolchains actually executed and links the initial passing
 Ubuntu CI run. A configured job alone is not evidence of a completed run. This
-v0.1.0 publication contained source only; native distribution is described below.
+initial v0.1.0 publication contained source only; native distribution was added
+without changing that tag and is described below.
 The npm grammar package remains private;
 source queries and the Go binding are included in the repository.
 
@@ -77,27 +81,46 @@ harness directly. Windows archives include the GCC runtime exception and MinGW
 runtime notices alongside the other dependency licenses.
 
 Release packaging uses Python 3.12+ and its standard library, with no new CLI
-runtime dependencies. Each archive contains only the executable, `LICENSE`,
+runtime dependencies. Each binary archive contains only the executable, `LICENSE`,
 `THIRD_PARTY_NOTICES.md`, `licenses/`, and `build-info.json` recording the source
 commit, target, Go version, and C compiler. Every packaged binary must report the
 requested version, pass the strict five-file baseline, support all retrieval
-commands, and pass all forty selected public retrieval checks. The workflow
-publishes three archives and `SHA256SUMS` only after every required job succeeds.
+commands, and pass all forty selected public retrieval checks. When tagged source
+contains the companion skill, each extracted binary also runs its eight command
+examples against original fixtures. A separate ZIP contains only
+`qlik-code-intelligence/SKILL.md`, `agents/openai.yaml`, `LICENSE`, and
+`build-info.json`, all under that single top-level folder. Skill metadata records
+the exact source commit, release version, and minimum CLI version. Packaging uses
+explicit file allowlists, never a recursive repository copy.
+
+The workflow publishes three binary archives, the optional skill archive, and
+`SHA256SUMS` only after every required job succeeds. Missing skill files fail the
+release; an older tag with no skill directory skips that archive entirely.
 These are unsigned binaries; code signing and notarization are not configured.
 Completed platform runs and validation results are recorded in the
 [native release assessment](validation/native-release-assessment.md).
 
-For a new release, commit the reviewed changelog and source, let ordinary CI pass,
-then push an annotated version tag on that commit:
+For a new release, commit the reviewed changelog and source and let ordinary CI
+pass. Before tagging, run native builds against the exact candidate commit:
 
 ```sh
-git tag -a v0.1.1 -m 'Release v0.1.1'
+gh workflow run release.yml --ref main -f tag=v0.1.1 \
+  -f source-ref=FULL_CANDIDATE_COMMIT_SHA -f publish=false
+```
+
+Inspect the completed dry run and its artifacts, then create an annotated version
+tag on that same successful candidate commit:
+
+```sh
+git tag -a v0.1.1 FULL_CANDIDATE_COMMIT_SHA -m 'Release v0.1.1'
 git push origin v0.1.1
 ```
 
 Pushing `v*` tags triggers a build and publication. All builds use the exact
 resolved tag commit. A new release is created as a draft, receives the complete
-asset set, then becomes public.
+asset set, then becomes public. `source-ref` is accepted only with `publish=false`;
+it provides a dry run before a tag exists and cannot publish a different commit
+under an existing tag.
 
 To test or backfill an existing tag, run the workflow from the current main
 branch, which supplies packaging tooling separately from the tagged source:
@@ -123,10 +146,16 @@ To verify downloads, compare the desired archive's hash with its line in
 
 ```sh
 # macOS
-shasum -a 256 qlik-repomap_v0.1.0_darwin_arm64.tar.gz
+shasum -a 256 qlik-repomap_v0.1.1_darwin_arm64.tar.gz
+shasum -a 256 qlik-code-intelligence-skill_v0.1.1.zip
 ```
 
-In PowerShell use `Get-FileHash .\qlik-repomap_v0.1.0_windows_amd64.zip -Algorithm SHA256`.
+In PowerShell use `Get-FileHash .\qlik-repomap_v0.1.1_windows_amd64.zip -Algorithm SHA256`.
+Extract the skill ZIP and validate its entry point with the skill-creator validator
+when available. Run `scripts/check-skill.py --binary PATH_TO_EXTRACTED_BINARY
+--skill PATH_TO_EXTRACTED_SKILL_FOLDER` against the public fixtures. These checks
+validate command examples and source facts; they do not evaluate automatic skill
+selection or model behavior in assistant products.
 
 ## Publication checklist
 
@@ -138,11 +167,13 @@ When publication is explicitly requested:
    GitHub Actions checks on that commit.
 3. Confirm both minimum and current Go CI results, and update the readiness
    assessment with any newly executed targets.
-4. Change the changelog entry from candidate to released with the actual date,
-   tag that verified commit `v0.1.0`, and publish source release notes containing
+4. Complete a native dry run against the exact candidate commit. Set the changelog
+   release date, tag the verified commit, and publish release notes containing
    supported syntax, CGO/build requirements, validation evidence, and known limits.
-5. Attach binaries only for targets that were built and tested, with SHA-256
-   checksums and the applicable license notices.
+5. Publish binaries only for targets that were built and tested, plus the companion
+   skill when present, with SHA-256 checksums and applicable license notices.
+   Download the public assets, verify checksums and source-commit metadata, and
+   record only executed validation results.
 
 Complete recovery of the private QVW scripts still needs comparison with native
 QlikView `.qvs` exports or `LoadScript.txt` files. That work does not change this

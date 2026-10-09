@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.1 — 2026-10-09
+
+- Companion `qlik-code-intelligence` skill for focused repository maps, symbol
+  lookup, direct QVD dependencies, and original numbered source context.
+- Portable skill ZIP with an installable folder, Codex UI metadata, MIT license,
+  and exact source-commit metadata; included alongside native binaries in
+  `SHA256SUMS`.
+- Executable checks for all eight documented skill commands, input/output field
+  roles, literal paths, dependency directions, source lines, byte budgets, and
+  partial indexing after unsupported syntax. CI tests the examples on extracted
+  macOS and Windows binaries.
+- Release workflow supports a commit-pinned pre-tag dry run. Older tags without
+  a skill remain buildable; published tags are preserved.
+
+Parser, CLI behavior, and runtime dependencies are unchanged. The skill requires
+an installed `qlik-repomap` v0.1.0 or later. Command checks do not establish
+automatic skill selection or assistant behavior across products.
+
 ## 0.1.0 — 2026-10-09
 
 First source release of qlik-code-intelligence.

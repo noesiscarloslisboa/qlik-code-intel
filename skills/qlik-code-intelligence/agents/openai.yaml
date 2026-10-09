@@ -1,0 +1,4 @@
+interface:
+  display_name: "Qlik Code Intelligence"
+  short_description: "Find Qlik script symbols and focused source context"
+  default_prompt: "Use $qlik-code-intelligence to explain the relevant QVS scripts with original file paths and line numbers."

@@ -19,6 +19,7 @@ import zipfile
 TARGETS = {"darwin_arm64": "tar.gz", "darwin_amd64": "tar.gz", "windows_amd64": "zip"}
 VERSION = re.compile(r"v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?")
 MODULE = "github.com/noesiscarloslisboa/qlik-code-intel"
+SKILL = "qlik-code-intelligence"
 
 
 def run(args, **kwargs):
@@ -34,6 +35,18 @@ def filename(version, target):
     require(VERSION.fullmatch(version), "expected a version such as v0.1.0")
     require(target in TARGETS, "unsupported release target")
     return f"qlik-repomap_{version}_{target}.{TARGETS[target]}"
+
+
+def skill_filename(version):
+    require(VERSION.fullmatch(version), "invalid skill release version")
+    return f"{SKILL}-skill_{version}.zip"
+
+
+def write_checksum(archive):
+    digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+    archive.with_name(archive.name + ".sha256").write_text(
+        f"{digest}  {archive.name}\n", encoding="utf-8", newline="\n")
+    print(f"Verified {archive.name}: {digest}")
 
 
 def write_archive(path, files):
@@ -61,6 +74,29 @@ def smoke_environment():
         # A downloaded binary must work without the build toolchain on PATH.
         env["PATH"] = str(Path(env["SYSTEMROOT"]) / "System32")
     return env
+
+
+def package_skill(root, output, version):
+    name = skill_filename(version)
+    skill = root / "skills" / SKILL
+    if not skill.exists() and not skill.is_symlink():
+        print("Tagged source has no companion skill; skipping its archive")
+        return False
+    require(not skill.is_symlink() and not (skill / "agents").is_symlink(), "skill must be a regular directory")
+    files = {}
+    for name_in_archive, path in [("SKILL.md", skill / "SKILL.md"),
+                                  ("agents/openai.yaml", skill / "agents/openai.yaml"),
+                                  ("LICENSE", root / "LICENSE")]:
+        require(path.is_file() and not path.is_symlink(), f"missing regular skill file: {name_in_archive}")
+        files[f"{SKILL}/{name_in_archive}"] = (path.read_bytes(), 0o644)
+    metadata = {"version": version, "component": "skill", "cli_min_version": "v0.1.0",
+                "commit": run(["git", "rev-parse", "HEAD"], cwd=root).strip()}
+    files[f"{SKILL}/build-info.json"] = ((json.dumps(metadata, indent=2) + "\n").encode(), 0o644)
+    output.mkdir(parents=True, exist_ok=True)
+    archive = output / name
+    write_archive(archive, files)
+    write_checksum(archive)
+    return True
 
 
 def smoke(binary, root, version):
@@ -148,13 +184,16 @@ def package(root, output, version):
         result = json.loads(run([os.sys.executable, benchmark, "--samples-dir", root / "testdata/retrieval",
                                  "--manifest", root / "testdata/retrieval/questions.json", "--binary", executable]))
         print(json.dumps({"retrieval": result["summary"]}))
-    digest = hashlib.sha256(archive.read_bytes()).hexdigest()
-    (output / f"{name}.sha256").write_text(f"{digest}  {name}\n", encoding="utf-8", newline="\n")
-    print(f"Verified {name}: {digest}")
+        if (root / "skills" / SKILL / "SKILL.md").is_file():
+            print(run([os.sys.executable, Path(__file__).with_name("check-skill.py"),
+                       "--binary", executable, "--project", root]))
+    write_checksum(archive)
 
 
-def checksums(output, version):
+def checksums(output, version, with_skill=False):
     expected = sorted(filename(version, target) for target in TARGETS)
+    if with_skill:
+        expected = sorted([*expected, skill_filename(version)])
     require(sorted(path.name for path in output.iterdir()) ==
             sorted(expected + [name + ".sha256" for name in expected]), "unexpected or missing release files")
     lines = []
@@ -170,16 +209,19 @@ def checksums(output, version):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["package", "checksums"])
+    parser.add_argument("command", choices=["package", "skill", "checksums"])
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--output", type=Path, default=Path("dist"))
     parser.add_argument("--version", required=True)
+    parser.add_argument("--with-skill", action="store_true", help="Require the portable skill in checksum assembly")
     args = parser.parse_args()
     require(VERSION.fullmatch(args.version), "invalid release version")
     if args.command == "package":
         package(args.root.resolve(), args.output.resolve(), args.version)
+    elif args.command == "skill":
+        package_skill(args.root.resolve(), args.output.resolve(), args.version)
     else:
-        checksums(args.output, args.version)
+        checksums(args.output, args.version, with_skill=args.with_skill)
 
 
 if __name__ == "__main__":

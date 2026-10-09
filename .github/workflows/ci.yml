@@ -31,3 +31,4 @@ jobs:
       - run: npm ci
         working-directory: tree-sitter-qlik
       - run: make check
+      - run: python scripts/check-skill.py --binary bin/qlik-repomap
