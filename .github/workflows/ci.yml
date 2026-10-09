@@ -24,6 +24,10 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: tree-sitter-qlik/package-lock.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover -s scripts -p 'test_*.py'
       - run: npm ci
         working-directory: tree-sitter-qlik
       - run: make check
